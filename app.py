@@ -271,7 +271,7 @@ class VXToolApp:
             debug: 调试模式
         """
         self.logger.info(f"启动VX Tool服务: http://{host}:{port}")
-        self.socketio.run(self.app, host=host, port=port, debug=debug)
+        self.socketio.run(self.app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=True)
 
 
 def create_app() -> Flask:

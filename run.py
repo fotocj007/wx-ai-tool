@@ -103,7 +103,7 @@ def main():
     parser = argparse.ArgumentParser(description='VX Tool - 微信公众号热点文章AI生成与发布系统')
     parser.add_argument('--host', default='0.0.0.0', help='服务器主机地址 (默认: 0.0.0.0)')
     parser.add_argument('--port', type=int, default=5000, help='服务器端口 (默认: 5000)')
-    parser.add_argument('--debug', action='store_true', help='启用调试模式')
+    parser.add_argument('--debug', action='store_true',default=False, help='启用调试模式')
     parser.add_argument('--check-only', action='store_true', help='仅检查环境，不启动服务')
     
     args = parser.parse_args()
