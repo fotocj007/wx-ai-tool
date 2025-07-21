@@ -2,4 +2,4 @@
 articles/*
 logs/*
 config.ini
-*/__pycache__/*
+__pycache__/
