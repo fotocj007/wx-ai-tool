@@ -360,6 +360,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="ai-model-select">AI模型：</label>
+                        <select id="ai-model-select" class="form-control">
+                            <option value="qwen">Qwen</option>
+                            <option value="gemini">Gemini</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <button id="generate-only-btn" class="btn btn-primary">生成文章</button>
                     </div>
 
@@ -608,6 +616,7 @@
 
             async generateArticle() {
                 const title = document.getElementById('custom-title').value.trim();
+                const aiModel = document.getElementById('ai-model-select').value;
                 
                 if (!title) {
                     this.showResult('error', '请输入相关话题或选择热点话题');
@@ -624,6 +633,7 @@
                     <div class="loading show">
                         <div class="spinner"></div>
                         <p>正在初始化生成任务...</p>
+                        <p>使用AI模型: ${aiModel.toUpperCase()}</p>
                     </div>
                 `;
 
@@ -633,7 +643,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ title })
+                        body: JSON.stringify({ title, ai_model: aiModel })
                     });
                     
                     const result = await response.json();

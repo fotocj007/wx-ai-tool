@@ -9,6 +9,7 @@ from typing import Optional
 
 from core.config import get_config
 from core.logger import get_logger
+from tools.utils import clean_markdown_content, validate_markdown_content
 
 
 class GeminiClient:
@@ -130,7 +131,17 @@ class GeminiClient:
                 self.logger.error("Gemini API返回空内容")
                 return None, None
 
-            markdown_content = response.text
+            # 清理AI生成的markdown内容中的多余字符
+            raw_content = response.text
+            markdown_content = clean_markdown_content(raw_content)
+            
+            # 验证清理后的内容是否有效
+            if not validate_markdown_content(markdown_content):
+                self.logger.warning(f"清理后的markdown内容可能有问题，原始内容: {raw_content[:100]}...")
+                # 如果清理后的内容有问题，使用原始内容但记录警告
+                markdown_content = raw_content
+            else:
+                self.logger.info("成功清理markdown内容中的多余字符")
 
             self.logger.info(f"文章生成成功，标题: {final_title}")
             return markdown_content, final_title

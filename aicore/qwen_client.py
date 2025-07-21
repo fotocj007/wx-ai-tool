@@ -6,10 +6,12 @@ Qwen AI客户端
 """
 
 import requests
+import json
 from typing import Optional
 
 from core.config import get_config
 from core.logger import get_logger
+from tools.utils import clean_markdown_content, validate_markdown_content
 
 
 class QwenClient:
@@ -202,8 +204,16 @@ class QwenClient:
             content = self._make_request(messages, max_tokens=3000)
 
             if content:
-                self.logger.info(f"文章生成成功: {final_title}")
-                return content, final_title
+                # 清理AI生成的Markdown内容中的多余字符
+                cleaned_content = clean_markdown_content(content)
+                
+                # 验证清理后的内容
+                if validate_markdown_content(cleaned_content):
+                    self.logger.info(f"文章生成成功，内容已清理: {final_title}")
+                    return cleaned_content, final_title
+                else:
+                    self.logger.warning(f"内容清理后验证失败，使用原始内容: {final_title}")
+                    return content, final_title
             else:
                 self.logger.error(f"文章生成失败: {final_title}")
                 return None, None

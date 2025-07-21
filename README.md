@@ -47,7 +47,9 @@
 ### 🚀 启动方式
 
 提供了多种启动方式：
-安装步骤查看run.txt
+安装步骤查看run.txt.
+
+## 在微信公众号后台->设置与开发->开发接口管理 中IP白名单设置你的ip.
 
 1. Python脚本 : python run.py
 2. Windows批处理 : 双击 `start.bat`

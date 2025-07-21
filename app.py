@@ -92,7 +92,7 @@ class VXToolApp:
         def handle_disconnect():
             self.logger.info('客户端已断开连接')
 
-    def generate_article_async(self, title: str, task_id: str, use_catchy_title: bool = True):
+    def generate_article_async(self, title: str, task_id: str, use_catchy_title: bool = True, ai_model: str = 'qwen'):
         """
         异步生成文章
         
@@ -100,23 +100,32 @@ class VXToolApp:
             title: 原始标题
             task_id: 任务ID
             use_catchy_title: 是否生成爆款标题
+            ai_model: AI模型选择 ('qwen' 或 'gemini')
         """
         try:
+            # 根据ai_model参数选择AI客户端
+            if ai_model == 'gemini':
+                ai_client = get_gemini_client()
+                self.logger.info(f"使用Gemini AI客户端生成文章: {title}")
+            else:
+                ai_client = get_qwen_client()
+                self.logger.info(f"使用Qwen AI客户端生成文章: {title}")
+            
             # 更新任务状态
             self.task_status[task_id] = {
                 'status': 'generating_title',
-                'message': '正在生成爆款标题...',
+                'message': f'正在使用{ai_model.upper()}生成爆款标题...',
                 'progress': 20
             }
             self.socketio.emit('task_update', {
                 'task_id': task_id,
                 'status': 'generating_title',
-                'message': '正在生成爆款标题...',
+                'message': f'正在使用{ai_model.upper()}生成爆款标题...',
                 'progress': 20
             })
 
             # 生成文章和标题
-            content, final_title = self.ai_client.generate_article_from_title(title, use_catchy_title)
+            content, final_title = ai_client.generate_article_from_title(title, use_catchy_title)
 
             # 更新任务状态：开始生成文章
             self.task_status[task_id] = {
@@ -221,13 +230,14 @@ class VXToolApp:
             })
             self.logger.error(f"异步生成文章失败: {e}")
 
-    def start_article_generation(self, title: str, use_catchy_title: bool = True) -> str:
+    def start_article_generation(self, title: str, use_catchy_title: bool = True, ai_model: str = 'qwen') -> str:
         """
         启动文章生成任务
         
         Args:
             title: 原始标题
             use_catchy_title: 是否生成爆款标题
+            ai_model: AI模型选择 ('qwen' 或 'gemini')
             
         Returns:
             str: 任务ID
@@ -244,7 +254,7 @@ class VXToolApp:
         # 启动异步任务
         thread = threading.Thread(
                 target=self.generate_article_async,
-                args=(title, task_id, use_catchy_title)
+                args=(title, task_id, use_catchy_title, ai_model)
         )
         thread.daemon = True
         thread.start()

@@ -77,11 +77,12 @@ def _generate_article(vx_app) -> Dict[str, Any]:
 
         title = data['title']
         use_catchy_title = data.get('use_catchy_title', True)
+        ai_model = data.get('ai_model', 'qwen')  # 默认使用qwen
 
-        vx_app.logger.info(f"开始异步生成文章: {title}")
+        vx_app.logger.info(f"开始异步生成文章: {title}, 使用AI模型: {ai_model}")
 
         # 启动异步任务
-        task_id = vx_app.start_article_generation(title, use_catchy_title)
+        task_id = vx_app.start_article_generation(title, use_catchy_title, ai_model)
 
         return {
             'success': True,
