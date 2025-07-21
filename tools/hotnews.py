@@ -153,28 +153,3 @@ def get_platform_news(platform: str, cnt: int = 30) -> List[Dict]:
             return hotnews[:cnt]
 
     return []
-
-
-def select_platform_topic(platform: str, cnt: int = 30) -> str:
-    """
-    获取指定平台的新闻话题，并按排名加权随机选择一个话题。
-    若无话题，返回默认话题。
-    参数 platform: 平台名称（中文，如"微博"）
-    参数 cnt: 最大返回的新闻数量
-    返回: 选中的话题字符串
-    """
-    news_data = get_platform_news(platform, cnt)
-    if not news_data:
-        topics = ["历史上的今天"]
-        logger.warning(f"平台 {platform} 无法获取到热榜，接口暂时不可用，将使用默认话题。")
-    else:
-        topics = [item.get("name", "") for item in news_data if item.get("name")]
-
-    # 加权随机选择：排名靠前的话题权重更高
-    weights = [1 / (i + 1) ** 2 for i in range(len(topics))]
-    selected_topic = random.choices(topics, weights=weights, k=1)[0]
-
-    # 替换标题中的 | 为 ——
-    selected_topic = selected_topic.replace("|", "——")
-
-    return selected_topic

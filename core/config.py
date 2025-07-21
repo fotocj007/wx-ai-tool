@@ -74,26 +74,7 @@ class ConfigManager:
             if fallback is not None:
                 return fallback
             raise
-    
-    def get_bool(self, section: str, key: str, fallback: Optional[bool] = None) -> bool:
-        """
-        获取布尔配置值
-        
-        Args:
-            section: 配置节
-            key: 配置键
-            fallback: 默认值
-        
-        Returns:
-            bool: 配置值
-        """
-        try:
-            return self.config.getboolean(section, key, fallback=fallback)
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            if fallback is not None:
-                return fallback
-            raise
-    
+
     def get_gemini_api_key(self) -> str:
         """
         获取Gemini API Key
@@ -137,15 +118,6 @@ class ConfigManager:
             'appsecret': self.get('WECHAT', 'appsecret'),
             'author': self.get('WECHAT', 'author')
         }
-    
-    def get_log_level(self) -> str:
-        """
-        获取日志级别
-        
-        Returns:
-            str: 日志级别
-        """
-        return self.get('SYSTEM', 'log_level', 'INFO')
     
     def get_max_log_files(self) -> int:
         """

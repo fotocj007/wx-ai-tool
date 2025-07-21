@@ -22,11 +22,7 @@ def register_api_routes(app, vx_app):
     def get_hot_topics():
         """获取热点话题列表"""
         return _get_hot_topics(vx_app)
-    
-    @app.route('/api/platforms', methods=['GET'])
-    def get_platforms():
-        """获取平台列表"""
-        return _get_platforms(vx_app)
+
     
     @app.route('/api/status', methods=['GET'])
     def system_status():
@@ -76,34 +72,6 @@ def _get_hot_topics(vx_app) -> Dict[str, Any]:
             'error': f'获取热点话题失败: {str(e)}',
             'data': []
         }
-
-
-def _get_platforms(vx_app) -> Dict[str, Any]:
-    """
-    获取支持的平台列表
-    
-    Args:
-        vx_app: VXToolApp实例
-        
-    Returns:
-        dict: API响应
-    """
-    try:
-        platforms = [platform['name'] for platform in PLATFORMS]
-        return {
-            'success': True,
-            'data': {
-                'platforms': platforms,
-                'count': len(platforms)
-            }
-        }
-    except Exception as e:
-        vx_app.logger.error(f"获取平台列表失败: {e}")
-        return {
-            'success': False,
-            'error': f'获取平台列表失败: {str(e)}'
-        }
-
 
 def _system_status(vx_app) -> Dict[str, Any]:
     """

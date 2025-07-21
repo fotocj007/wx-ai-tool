@@ -135,41 +135,6 @@ class HTMLConverter:
     
 
     
-    def _create_full_html_document(self, body_content: str, title: str) -> str:
-        """
-        创建完整的HTML文档
-        
-        Args:
-            body_content: 正文内容
-            title: 文档标题
-        
-        Returns:
-            str: 完整的HTML文档
-        """
-        html_template = f"""
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    <style>
-        body {{
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }}
-    </style>
-</head>
-<body>
-    {body_content}
-</body>
-</html>
-"""
-        return html_template
-    
-
-    
     def extract_digest(self, html_content: str, max_length: int = 120) -> str:
         """
         从HTML内容中提取摘要

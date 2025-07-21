@@ -5,10 +5,8 @@ Gemini AI客户端模块
 """
 
 import google.generativeai as genai
-import os
-import re
 from typing import Optional
-from datetime import datetime
+
 from core.config import get_config
 from core.logger import get_logger
 
@@ -17,7 +15,7 @@ class GeminiClient:
     """
     Gemini AI客户端
     """
-    
+
     def __init__(self):
         """
         初始化Gemini客户端
@@ -26,7 +24,7 @@ class GeminiClient:
         self.logger = get_logger()
         self.model = None
         self._initialize_client()
-    
+
     def _initialize_client(self):
         """
         初始化Gemini客户端
@@ -36,19 +34,19 @@ class GeminiClient:
             api_key = self.config.get_gemini_api_key()
             if not api_key:
                 raise ValueError("未找到Gemini API Key")
-            
+
             # 配置API
             genai.configure(api_key=api_key)
-            
+
             # 创建模型实例
             self.model = genai.GenerativeModel('gemini-2.0-flash')
-            
+
             self.logger.info("Gemini客户端初始化成功")
-            
+
         except Exception as e:
             self.logger.error(f"Gemini客户端初始化失败: {e}")
             raise
-    
+
     def generate_catchy_title(self, original_title: str) -> Optional[str]:
         """
         根据原始标题生成更吸引人的爆款标题
@@ -61,7 +59,7 @@ class GeminiClient:
         """
         try:
             self.logger.info(f"开始生成爆款标题，原标题: {original_title}")
-            
+
             prompt = f"""
 请根据以下原始标题，生成一个更加吸引人的爆款标题：
 
@@ -78,10 +76,10 @@ class GeminiClient:
 
 请只输出一个最佳的标题，不要包含任何解释或说明。
 """
-            
+
             # 调用Gemini API生成爆款标题
             response = self.model.generate_content(prompt)
-            
+
             if response and response.text:
                 # 清理标题，移除可能的引号和多余空格
                 catchy_title = response.text.strip().strip('"').strip("'")
@@ -90,12 +88,13 @@ class GeminiClient:
             else:
                 self.logger.error(f"爆款标题生成失败，使用原标题: {original_title}")
                 return original_title
-                
+
         except Exception as e:
             self.logger.error(f"生成爆款标题时发生错误: {e}，使用原标题")
             return original_title
-    
-    def generate_article_from_title(self, title: str, use_catchy_title: bool = True) -> tuple[Optional[str], Optional[str]]:
+
+    def generate_article_from_title(self, title: str, use_catchy_title: bool = True) -> tuple[
+        Optional[str], Optional[str]]:
         """
         根据标题生成文章
         
@@ -109,7 +108,7 @@ class GeminiClient:
         if not self.model:
             self.logger.error("Gemini模型未初始化")
             return None, None
-        
+
         try:
             # 1. 生成爆款标题（如果需要）
             final_title = title
@@ -118,31 +117,28 @@ class GeminiClient:
                 if catchy_title and catchy_title != title:
                     final_title = catchy_title
                     self.logger.info(f"使用爆款标题: {final_title}")
-            
+
             self.logger.info(f"开始使用Gemini生成文章: {final_title}")
-            
+
             # 2. 生成文章内容
             prompt = self._create_article_prompt(final_title)
-            
+
             # 调用Gemini API生成内容
             response = self.model.generate_content(prompt)
-            
+
             if not response or not response.text:
                 self.logger.error("Gemini API返回空内容")
                 return None, None
-            
+
             markdown_content = response.text
-            
-            # 保存生成的文章到本地
-            self.save_article_locally(final_title, markdown_content)
-            
+
             self.logger.info(f"文章生成成功，标题: {final_title}")
             return markdown_content, final_title
-            
+
         except Exception as e:
             self.logger.error(f"调用Gemini API失败: {e}")
             return None, None
-    
+
     def _create_article_prompt(self, title: str) -> str:
         """
         创建文章生成提示词
@@ -171,63 +167,7 @@ class GeminiClient:
 现在，请开始你的创作：
 """
         return prompt
-    
-    def save_article_locally(self, title: str, content: str) -> bool:
-        """
-        保存文章到本地
-        
-        Args:
-            title (str): 文章标题
-            content (str): 文章内容
-            
-        Returns:
-            bool: 是否保存成功
-        """
-        try:
-            # 确保articles目录存在
-            articles_dir = "articles"
-            if not os.path.exists(articles_dir):
-                os.makedirs(articles_dir)
-            
-            # 生成安全的文件名
-            safe_title = self._sanitize_filename(title)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{timestamp}_{safe_title}.md"
-            filepath = os.path.join(articles_dir, filename)
-            
-            # 保存文件
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"# {title}\n\n")
-                f.write(f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"AI模型: Gemini (gemini-2.0-flash)\n\n")
-                f.write("---\n\n")
-                f.write(content)
-            
-            self.logger.info(f"文章已保存到: {filepath}")
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"保存文章失败: {e}")
-            return False
-    
-    def _sanitize_filename(self, filename: str) -> str:
-        """
-        清理文件名，移除不安全字符
-        
-        Args:
-            filename (str): 原始文件名
-            
-        Returns:
-            str: 清理后的文件名
-        """
-        # 移除或替换不安全字符
-        filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
-        filename = re.sub(r'[\s]+', '_', filename)
-        # 限制长度
-        if len(filename) > 50:
-            filename = filename[:50]
-        return filename
-    
+
     def test_connection(self) -> bool:
         """
         测试Gemini API连接
@@ -238,17 +178,17 @@ class GeminiClient:
         try:
             if not self.model:
                 return False
-            
+
             # 发送一个简单的测试请求
             response = self.model.generate_content("请回复'连接成功'")
-            
+
             if response and response.text:
                 self.logger.info("Gemini API连接测试成功")
                 return True
             else:
                 self.logger.error("Gemini API连接测试失败：无响应")
                 return False
-                
+
         except Exception as e:
             self.logger.error(f"Gemini API连接测试失败: {e}")
             return False

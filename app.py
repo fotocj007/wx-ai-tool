@@ -29,26 +29,26 @@ class VXToolApp:
     """
     VX Tool 主应用类
     """
-    
+
     def __init__(self):
         """
         初始化应用
         """
         self.app = Flask(__name__)
         CORS(self.app)  # 启用跨域支持
-        
+
         # 初始化SocketIO
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
-        
+
         # 任务状态管理
         self.task_status = {}  # 存储任务状态
-        
+
         # 初始化组件
         self.config = get_config()
         self.logger = get_logger()
         self.html_converter = get_html_converter()
         self.wechat_publisher = get_wechat_publisher()
-        
+
         # 根据配置选择AI客户端
         ai_model = self.config.get_ai_model()
         if ai_model == 'qwen':
@@ -57,15 +57,15 @@ class VXToolApp:
         else:
             self.ai_client = get_gemini_client()
             self.logger.info("使用Gemini AI客户端")
-        
+
         # 注册路由
         self._register_routes()
-        
+
         # 清理旧日志
         cleanup_old_logs(keep_days=self.config.get_max_log_files())
-        
+
         self.logger.info("VX Tool 应用初始化完成")
-    
+
     def _register_routes(self):
         """
         注册路由
@@ -75,22 +75,23 @@ class VXToolApp:
         register_api_routes(self.app, self)
         register_article_routes(self.app, self)
         register_wechat_routes(self.app, self)
-        
+
         # 注册SocketIO事件
         self._register_socketio_events()
-    
+
     def _register_socketio_events(self):
         """
         注册SocketIO事件
         """
+
         @self.socketio.on('connect')
         def handle_connect():
             self.logger.info('客户端已连接')
-        
+
         @self.socketio.on('disconnect')
         def handle_disconnect():
             self.logger.info('客户端已断开连接')
-    
+
     def generate_article_async(self, title: str, task_id: str, use_catchy_title: bool = True):
         """
         异步生成文章
@@ -108,15 +109,15 @@ class VXToolApp:
                 'progress': 20
             }
             self.socketio.emit('task_update', {
-                    'task_id': task_id,
-                    'status': 'generating_title',
-                    'message': '正在生成爆款标题...',
-                    'progress': 20
-                })
-            
+                'task_id': task_id,
+                'status': 'generating_title',
+                'message': '正在生成爆款标题...',
+                'progress': 20
+            })
+
             # 生成文章和标题
             content, final_title = self.ai_client.generate_article_from_title(title, use_catchy_title)
-            
+
             # 更新任务状态：开始生成文章
             self.task_status[task_id] = {
                 'status': 'generating_article',
@@ -130,7 +131,7 @@ class VXToolApp:
                 'message': '正在生成文章内容...',
                 'progress': 50
             })
-            
+
             if content and final_title:
                 # 更新任务状态
                 self.task_status[task_id] = {
@@ -144,29 +145,29 @@ class VXToolApp:
                     'message': '正在保存文章...',
                     'progress': 80
                 })
-                
+
                 # 保存文章
                 articles_dir = os.path.join(os.path.dirname(__file__), 'articles')
                 if not os.path.exists(articles_dir):
                     os.makedirs(articles_dir)
-                
+
                 from datetime import datetime
                 import re
-                
+
                 # 生成安全的文件名
                 safe_title = re.sub(r'[<>:"/\\|?*]', '_', final_title)
                 safe_title = re.sub(r'[\s]+', '_', safe_title)
                 if len(safe_title) > 50:
                     safe_title = safe_title[:50]
-                
+
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 filename = f"{timestamp}_{safe_title}.md"
                 file_path = os.path.join(articles_dir, filename)
-                
+
                 # 写入文件
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(content)
-                
+
                 # 任务完成
                 self.task_status[task_id] = {
                     'status': 'completed',
@@ -189,7 +190,7 @@ class VXToolApp:
                     'filename': filename,
                     'file_path': file_path
                 })
-                
+
                 self.logger.info(f"文章生成完成: {final_title}")
             else:
                 # 任务失败
@@ -204,7 +205,7 @@ class VXToolApp:
                     'error': 'AI文章生成失败',
                     'progress': 0
                 })
-                
+
         except Exception as e:
             # 任务异常
             self.task_status[task_id] = {
@@ -219,7 +220,7 @@ class VXToolApp:
                 'progress': 0
             })
             self.logger.error(f"异步生成文章失败: {e}")
-    
+
     def start_article_generation(self, title: str, use_catchy_title: bool = True) -> str:
         """
         启动文章生成任务
@@ -232,42 +233,24 @@ class VXToolApp:
             str: 任务ID
         """
         task_id = str(uuid.uuid4())
-        
+
         # 初始化任务状态
         self.task_status[task_id] = {
             'status': 'started',
             'message': '任务已启动...',
             'progress': 10
         }
-        
+
         # 启动异步任务
         thread = threading.Thread(
-            target=self.generate_article_async,
-            args=(title, task_id, use_catchy_title)
+                target=self.generate_article_async,
+                args=(title, task_id, use_catchy_title)
         )
         thread.daemon = True
         thread.start()
-        
+
         return task_id
-    
-    def get_task_status(self, task_id: str) -> Dict[str, Any]:
-        """
-        获取任务状态
-        
-        Args:
-            task_id: 任务ID
-            
-        Returns:
-            Dict[str, Any]: 任务状态
-        """
-        return self.task_status.get(task_id, {'status': 'not_found', 'message': '任务不存在'})
-    
 
-    
-
-    
-
-    
     def run(self, host='0.0.0.0', port=5000, debug=False):
         """
         运行应用
@@ -295,6 +278,6 @@ def create_app() -> Flask:
 if __name__ == '__main__':
     # 创建应用实例
     vx_app = VXToolApp()
-    
+
     # 运行应用
     vx_app.run(debug=True)

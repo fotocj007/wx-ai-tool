@@ -5,12 +5,8 @@ Qwen AI客户端
 用于与阿里云通义千问API交互，生成文章内容
 """
 
-import os
-import re
 import requests
-import json
 from typing import Optional
-from datetime import datetime
 
 from core.config import get_config
 from core.logger import get_logger
@@ -20,7 +16,7 @@ class QwenClient:
     """
     Qwen AI客户端类
     """
-    
+
     def __init__(self):
         """
         初始化Qwen客户端
@@ -28,18 +24,18 @@ class QwenClient:
         self.config = get_config()
         self.logger = get_logger()
         self.qwen_config = self.config.get_qwen_config()
-        
+
         # 验证配置
         if not self.qwen_config['api_key']:
             self.logger.error("Qwen API Key未配置")
             raise ValueError("Qwen API Key未配置")
-        
+
         self.api_key = self.qwen_config['api_key']
         self.base_url = self.qwen_config['base_url']
         self.model = self.qwen_config['model']
-        
+
         self.logger.info(f"Qwen客户端初始化成功，模型: {self.model}")
-    
+
     def _make_request(self, messages: list, max_tokens: int = 2000) -> Optional[str]:
         """
         发送请求到Qwen API
@@ -56,7 +52,7 @@ class QwenClient:
                 'Authorization': f'Bearer {self.api_key}',
                 'Content-Type': 'application/json'
             }
-            
+
             data = {
                 'model': self.model,
                 'messages': messages,
@@ -64,16 +60,16 @@ class QwenClient:
                 'temperature': 0.7,
                 'top_p': 0.9
             }
-            
+
             self.logger.info(f"发送请求到Qwen API: {self.base_url}/chat/completions")
-            
+
             response = requests.post(
-                f"{self.base_url}/chat/completions",
-                headers=headers,
-                json=data,
-                timeout=60
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=data,
+                    timeout=60
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
                 if 'choices' in result and len(result['choices']) > 0:
@@ -86,11 +82,11 @@ class QwenClient:
             else:
                 self.logger.error(f"Qwen API请求失败: {response.status_code} - {response.text}")
                 return None
-                
+
         except Exception as e:
             self.logger.error(f"Qwen API请求异常: {e}")
             return None
-    
+
     def generate_catchy_title(self, original_title: str) -> Optional[str]:
         """
         根据原始标题生成更吸引人的爆款标题
@@ -103,7 +99,7 @@ class QwenClient:
         """
         try:
             self.logger.info(f"开始生成爆款标题，原标题: {original_title}")
-            
+
             prompt = f"""
 请根据以下原始标题，生成一个更加吸引人的爆款标题：
 
@@ -120,7 +116,7 @@ class QwenClient:
 
 请只输出一个最佳的标题，不要包含任何解释或说明。
 """
-            
+
             messages = [
                 {
                     "role": "system",
@@ -131,10 +127,10 @@ class QwenClient:
                     "content": prompt
                 }
             ]
-            
+
             # 发送请求
             catchy_title = self._make_request(messages, max_tokens=100)
-            
+
             if catchy_title:
                 # 清理标题，移除可能的引号和多余空格
                 catchy_title = catchy_title.strip().strip('"').strip("'")
@@ -143,12 +139,13 @@ class QwenClient:
             else:
                 self.logger.error(f"爆款标题生成失败，使用原标题: {original_title}")
                 return original_title
-                
+
         except Exception as e:
             self.logger.error(f"生成爆款标题时发生错误: {e}，使用原标题")
             return original_title
-    
-    def generate_article_from_title(self, title: str, use_catchy_title: bool = True) -> tuple[Optional[str], Optional[str]]:
+
+    def generate_article_from_title(self, title: str, use_catchy_title: bool = True) -> tuple[
+        Optional[str], Optional[str]]:
         """
         根据标题生成文章
         
@@ -167,9 +164,9 @@ class QwenClient:
                 if catchy_title and catchy_title != title:
                     final_title = catchy_title
                     self.logger.info(f"使用爆款标题: {final_title}")
-            
+
             self.logger.info(f"开始使用Qwen生成文章: {final_title}")
-            
+
             # 2. 构建提示词
             prompt = f"""
 请根据以下标题创作一篇高质量的微信公众号文章：
@@ -189,7 +186,7 @@ class QwenClient:
 
 请直接输出文章内容，不要包含任何解释或说明文字。
 """
-            
+
             messages = [
                 {
                     "role": "system",
@@ -200,77 +197,21 @@ class QwenClient:
                     "content": prompt
                 }
             ]
-            
+
             # 3. 发送请求
             content = self._make_request(messages, max_tokens=3000)
-            
+
             if content:
                 self.logger.info(f"文章生成成功: {final_title}")
                 return content, final_title
             else:
                 self.logger.error(f"文章生成失败: {final_title}")
                 return None, None
-                
+
         except Exception as e:
             self.logger.error(f"生成文章时发生错误: {e}")
             return None, None
-    
-    def save_article_locally(self, title: str, content: str) -> bool:
-        """
-        保存文章到本地
-        
-        Args:
-            title (str): 文章标题
-            content (str): 文章内容
-            
-        Returns:
-            bool: 是否保存成功
-        """
-        try:
-            # 确保articles目录存在
-            articles_dir = "articles"
-            if not os.path.exists(articles_dir):
-                os.makedirs(articles_dir)
-            
-            # 生成安全的文件名
-            safe_title = self._sanitize_filename(title)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{timestamp}_{safe_title}.md"
-            filepath = os.path.join(articles_dir, filename)
-            
-            # 保存文件
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"# {title}\n\n")
-                f.write(f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"AI模型: Qwen ({self.model})\n\n")
-                f.write("---\n\n")
-                f.write(content)
-            
-            self.logger.info(f"文章已保存到: {filepath}")
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"保存文章失败: {e}")
-            return False
-    
-    def _sanitize_filename(self, filename: str) -> str:
-        """
-        清理文件名，移除不安全字符
-        
-        Args:
-            filename (str): 原始文件名
-            
-        Returns:
-            str: 清理后的文件名
-        """
-        # 移除或替换不安全字符
-        filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
-        filename = re.sub(r'[\s]+', '_', filename)
-        # 限制长度
-        if len(filename) > 50:
-            filename = filename[:50]
-        return filename
-    
+
     def test_connection(self) -> bool:
         """
         测试与Qwen API的连接
@@ -280,23 +221,23 @@ class QwenClient:
         """
         try:
             self.logger.info("测试Qwen API连接...")
-            
+
             messages = [
                 {
                     "role": "user",
                     "content": "请回复'连接测试成功'"
                 }
             ]
-            
+
             result = self._make_request(messages, max_tokens=50)
-            
+
             if result:
                 self.logger.info("Qwen API连接测试成功")
                 return True
             else:
                 self.logger.error("Qwen API连接测试失败")
                 return False
-                
+
         except Exception as e:
             self.logger.error(f"Qwen API连接测试异常: {e}")
             return False

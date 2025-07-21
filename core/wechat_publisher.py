@@ -197,7 +197,7 @@ class WeChatPublisher:
             # 处理本地图片
             if not os.path.exists(image_url):
                 return None, None, f"本地图片未找到: {image_url}"
-            print("---上传新图片-------------")
+
             # 缓存未命中，执行上传
             with open(image_url, "rb") as f:
                 image_buffer = BytesIO(f.read())
@@ -380,42 +380,7 @@ class WeChatPublisher:
         except Exception as e:
             self.logger.error(f"获取草稿列表失败: {e}")
             return None
-    
-    def delete_draft(self, media_id: str) -> bool:
-        """
-        删除草稿
-        
-        Args:
-            media_id: 草稿媒体ID
-        
-        Returns:
-            bool: 是否成功
-        """
-        try:
-            access_token = self._ensure_access_token()
-            if not access_token:
-                return False
-            
-            url = f"{self.BASE_URL}/draft/delete?access_token={access_token}"
-            data = {"media_id": media_id}
-            
-            response = requests.post(url, json=data, timeout=30)
-            response.raise_for_status()
-            
-            result = response.json()
-            
-            if result.get("errcode", 0) != 0:
-                error_msg = result.get('errmsg', '未知错误')
-                self.logger.error(f"删除草稿失败: {error_msg}")
-                return False
-            
-            self.logger.info(f"草稿删除成功: {media_id}")
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"删除草稿失败: {e}")
-            return False
-    
+
     def is_verified(self) -> bool:
         """
         检查公众号是否已认证
