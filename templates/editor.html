@@ -107,6 +107,36 @@
             color: #ffffff !important;
         }
 
+        .template-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+        }
+
+        .template-selector label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .template-selector select {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .template-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
         .main-container {
             display: flex;
             height: calc(100vh - 70px);
@@ -335,6 +365,12 @@
             <div class="current-file" id="current-file">请选择一个文件开始编辑</div>
             <div class="toolbar-buttons">
                 <button class="btn btn-success" id="save-btn" onclick="editor.saveFile()" disabled>💾 保存修改</button>
+                <div class="template-selector">
+                    <label for="template-select">🎨 样式模板:</label>
+                    <select id="template-select" disabled>
+                        <option value="">随机选择</option>
+                    </select>
+                </div>
                 <button class="btn btn-info" id="convert-btn" onclick="editor.convertToHtml()" disabled>🔄 转换HTML
                 </button>
                 <button class="btn btn-warning" id="preview-btn" onclick="editor.previewHtml()" disabled>👁️ 查看HTML
@@ -369,6 +405,7 @@
         init() {
             this.loadFileList();
             this.initEditor();
+            this.loadTemplates();
         }
 
         initEditor() {
@@ -457,6 +494,7 @@
                     document.getElementById('convert-btn').disabled = false;
                     document.getElementById('preview-btn').disabled = false;
                     document.getElementById('publish-btn').disabled = false;
+                    document.getElementById('template-select').disabled = false;
 
                     // 更新选中状态
                     document.querySelectorAll('.file-item').forEach(item => {
@@ -510,6 +548,33 @@
             }
         }
 
+        async loadTemplates() {
+            try {
+                const response = await fetch('/api/templates');
+                const result = await response.json();
+
+                if (result.success) {
+                    const select = document.getElementById('template-select');
+                    const templates = result.data.templates;
+
+                    // 清空现有选项（保留随机选择）
+                    select.innerHTML = '<option value="">随机选择</option>';
+
+                    // 添加模板选项
+                    templates.forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = template.name;
+                        option.textContent = template.description;
+                        select.appendChild(option);
+                    });
+                } else {
+                    console.error('加载模板失败:', result.error);
+                }
+            } catch (error) {
+                console.error('加载模板失败:', error);
+            }
+        }
+
         async convertToHtml() {
             if (!this.currentFile) {
                 this.showAlert('error', '请先选择一个文件');
@@ -518,19 +583,28 @@
 
             const btn = document.getElementById('convert-btn');
             const originalText = btn.textContent;
+            const templateSelect = document.getElementById('template-select');
+            const selectedTemplate = templateSelect.value;
 
             btn.disabled = true;
             btn.textContent = '转换中...';
 
             try {
+                const requestBody = selectedTemplate ? { template_name: selectedTemplate } : {};
+                
                 const response = await fetch(`/api/convert-html/${encodeURIComponent(this.currentFile)}`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    this.showAlert('success', `HTML文件已生成: ${result.data.html_path}`);
+                    const templateUsed = result.data.template_used || '随机选择';
+                    this.showAlert('success', `HTML文件已生成: ${result.data.html_path}，使用模板: ${templateUsed}`);
                 } else {
                     this.showAlert('error', result.error);
                 }

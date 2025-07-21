@@ -7,8 +7,10 @@ HTML转换模块
 import markdown
 from bs4 import BeautifulSoup
 import os
+import random
 from typing import Optional
 from core.logger import get_logger
+from core.template_manager import TemplateManager
 
 
 class HTMLConverter:
@@ -21,50 +23,33 @@ class HTMLConverter:
         初始化HTML转换器
         """
         self.logger = get_logger()
-        self.style_map = self._get_style_map()
+        self.template_manager = TemplateManager()
+        self.style_templates = self.template_manager.get_style_templates()
     
-    def _get_style_map(self) -> dict:
-        """
-        获取样式映射表
-        
-        Returns:
-            dict: 样式映射表
-        """
-        return {
-            'h1': 'font-size: 24px; font-weight: bold; color: #333; margin: 30px 0 20px; padding-bottom: 8px; border-bottom: 3px solid #007bff; text-align: center;',
-            'h2': 'font-size: 20px; font-weight: bold; color: #333; margin: 25px 0 15px; padding-bottom: 5px; border-bottom: 2px solid #007bff;',
-            'h3': 'font-size: 18px; font-weight: bold; color: #444; margin: 20px 0 10px; padding-left: 10px; border-left: 4px solid #007bff;',
-            'h4': 'font-size: 16px; font-weight: bold; color: #555; margin: 15px 0 8px;',
-            'p': 'font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 15px; text-align: justify; text-indent: 2em;',
-            'strong': 'color: #d9534f; font-weight: bold;',
-            'em': 'color: #5bc0de; font-style: italic;',
-            'ul': 'padding-left: 20px; margin: 15px 0;',
-            'ol': 'padding-left: 20px; margin: 15px 0;',
-            'li': 'margin-bottom: 8px; line-height: 1.6;',
-            'blockquote': 'border-left: 4px solid #ccc; padding-left: 15px; color: #777; font-style: italic; margin: 15px 0; background-color: #f9f9f9; padding: 10px 15px;',
-            'code': 'background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: Consolas, Monaco, monospace; color: #c7254e;',
-            'pre': 'background-color: #f8f8f8; padding: 15px; border-radius: 5px; border: 1px solid #e1e1e8; overflow-x: auto; margin: 15px 0;',
-            'a': 'color: #007bff; text-decoration: none;',
-            'img': 'max-width: 100%; height: auto; display: block; margin: 15px auto;',
-            'table': 'border-collapse: collapse; width: 100%; margin: 15px 0;',
-            'th': 'border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2; font-weight: bold; text-align: center;',
-            'td': 'border: 1px solid #ddd; padding: 8px; text-align: left;',
-            'hr': 'border: none; height: 1px; background-color: #ddd; margin: 20px 0;'
-        }
+
     
-    def markdown_to_styled_html(self, md_content: str, title: str = "") -> Optional[str]:
+    def markdown_to_styled_html(self, md_content: str, title: str = "", template_name: str = None) -> Optional[str]:
         """
         将Markdown转换为带有内联CSS样式的HTML
         
         Args:
             md_content: Markdown内容
             title: 文章标题（仅用于日志记录）
+            template_name: 指定样式模板名称，如果为None则随机选择
         
         Returns:
             str: 转换后的HTML内容，失败返回None
         """
         try:
-            self.logger.info("开始转换Markdown到HTML")
+            # 选择样式模板
+            if template_name and template_name in self.style_templates:
+                selected_template = self.style_templates[template_name]
+            else:
+                # 随机选择一个模板
+                template_name = random.choice(list(self.style_templates.keys()))
+                selected_template = self.style_templates[template_name]
+            
+            self.logger.info(f"开始转换Markdown到HTML，使用样式模板: {selected_template['name']}")
             
             # 1. Markdown转为基础HTML
             html = markdown.markdown(
@@ -81,27 +66,28 @@ class HTMLConverter:
             # 2. 使用BeautifulSoup解析HTML并注入样式
             soup = BeautifulSoup(html, 'html.parser')
             
-            # 3. 应用样式
-            self._apply_styles(soup)
+            # 3. 应用选定模板的样式
+            self._apply_template_styles(soup, selected_template['styles'])
             
             # 4. 添加整体容器样式
-            styled_html = self._wrap_with_container(str(soup))
+            styled_html = self._wrap_with_template_container(str(soup), selected_template['container'], template_name)
             
-            self.logger.info("Markdown转HTML完成")
+            self.logger.info(f"Markdown转HTML完成，使用模板: {selected_template['name']}")
             return styled_html
             
         except Exception as e:
             self.logger.error(f"Markdown转HTML失败: {e}")
             return None
     
-    def _apply_styles(self, soup: BeautifulSoup):
+    def _apply_template_styles(self, soup: BeautifulSoup, style_map: dict):
         """
-        应用内联样式
+        应用模板样式
         
         Args:
             soup: BeautifulSoup对象
+            style_map: 样式映射表
         """
-        for tag_name, style in self.style_map.items():
+        for tag_name, style in style_map.items():
             for tag in soup.find_all(tag_name):
                 # 保留原有的style属性，如果有的话
                 existing_style = tag.get('style', '')
@@ -110,30 +96,174 @@ class HTMLConverter:
                 else:
                     tag['style'] = style
     
-    def _wrap_with_container(self, html_content: str) -> str:
+    def _wrap_with_template_container(self, html_content: str, container_style: str, template_name: str = None) -> str:
         """
-        用容器包装HTML内容
+        用模板容器包装HTML内容
         
         Args:
             html_content: HTML内容
+            container_style: 容器样式
+            template_name: 模板名称，用于决定是否添加特殊样式
         
         Returns:
             str: 包装后的HTML
         """
-        container_style = (
-            "max-width: 100%; "
-            "margin: 0 auto; "
-            "padding: 20px; "
-            "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; "
-            "background-color: #ffffff; "
-            "color: #333333; "
-            "line-height: 1.6;"
-        )
+        css_styles = ""
         
-        wrapped_html = f'<div style="{container_style}">{html_content}</div>'
+        # 根据模板类型添加相应的CSS样式
+        if template_name == 'svg_animation':
+            # 只为SVG动画主题添加动画样式
+            css_styles = """
+            <style>
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            @keyframes slideInLeft {
+                0% { transform: translateX(-100%); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideInRight {
+                0% { transform: translateX(100%); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeInUp {
+                0% { transform: translateY(30px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes fadeInLeft {
+                0% { transform: translateX(-30px); opacity: 0; }
+                100% { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            @keyframes bounceIn {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+            @keyframes flash {
+                0%, 50%, 100% { opacity: 1; }
+                25%, 75% { opacity: 0.5; }
+            }
+            @keyframes zoomIn {
+                0% { transform: scale(0.5); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+            @keyframes rotateIn {
+                0% { transform: rotate(-200deg); opacity: 0; }
+                100% { transform: rotate(0); opacity: 1; }
+            }
+            @keyframes rainbow {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            @keyframes glow {
+                0% { text-shadow: 0 0 5px rgba(254, 202, 87, 0.5); }
+                100% { text-shadow: 0 0 20px rgba(254, 202, 87, 0.8), 0 0 30px rgba(254, 202, 87, 0.6); }
+            }
+            </style>
+            """
+        elif template_name == 'numbered_sequence':
+            # 只为数字序列主题添加数字样式
+            css_styles = """
+            <style>
+            /* 数字序列样式 */
+            h2::before {
+                content: counter(section);
+                position: absolute;
+                left: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 35px;
+                height: 35px;
+                background: linear-gradient(45deg, #667eea, #764ba2);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 18px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            }
+            
+            h3::before {
+                content: counter(section) "." counter(subsection);
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 30px;
+                height: 30px;
+                background: linear-gradient(45deg, #f5576c, #f093fb);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 14px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            h4::before {
+                content: counter(section) "." counter(subsection) "." counter(subsubsection);
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 25px;
+                height: 25px;
+                background: linear-gradient(45deg, #f093fb, #667eea);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 12px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+            
+            /* 重置子计数器 */
+            h2 {
+                counter-reset: subsection;
+            }
+            h3 {
+                counter-reset: subsubsection;
+            }
+            </style>
+            """
+        
+        wrapped_html = f'{css_styles}<div style="{container_style}">{html_content}</div>'
         return wrapped_html
     
-
+    def get_available_templates(self) -> list:
+        """
+        获取可用的样式模板列表
+        
+        Returns:
+            list: 包含模板信息的列表，每个元素包含name和description字段
+        """
+        return self.template_manager.get_available_templates()
+    
+    def get_template_preview(self, template_name: str) -> Optional[str]:
+        """
+        获取指定模板的预览信息
+        
+        Args:
+            template_name: 模板名称
+        
+        Returns:
+            str: 模板描述，如果模板不存在返回None
+        """
+        return self.template_manager.get_template_preview(template_name)
     
     def extract_digest(self, html_content: str, max_length: int = 120) -> str:
         """

@@ -50,6 +50,11 @@ def register_article_routes(app, vx_app):
     def preview_html(filename):
         """预览HTML文件"""
         return _preview_html(vx_app, filename)
+    
+    @app.route('/api/templates', methods=['GET'])
+    def get_templates():
+        """获取可用的样式模板列表"""
+        return _get_templates(vx_app)
 
 
 def _generate_article(vx_app) -> Dict[str, Any]:
@@ -239,6 +244,10 @@ def _convert_to_html(vx_app, filename: str) -> Dict[str, Any]:
         dict: API响应
     """
     try:
+        # 获取请求参数
+        data = request.get_json() if request.is_json else {}
+        template_name = data.get('template_name') if data else request.args.get('template_name')
+        
         articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
         md_file_path = os.path.join(articles_dir, filename)
 
@@ -260,8 +269,19 @@ def _convert_to_html(vx_app, filename: str) -> Dict[str, Any]:
             if len(parts) >= 3:
                 title = parts[2]
 
-        # 转换为HTML
-        html_content = vx_app.html_converter.markdown_to_styled_html(md_content, title)
+        # 转换为HTML，支持指定模板
+        html_content = vx_app.html_converter.markdown_to_styled_html(md_content, title, template_name)
+        
+        # 获取使用的模板信息
+        available_templates = vx_app.html_converter.get_available_templates()
+        template_names = [t['name'] for t in available_templates]
+        
+        if template_name and template_name in template_names:
+            # 找到对应的模板描述
+            used_template = next(t['description'] for t in available_templates if t['name'] == template_name)
+        else:
+            # 如果没有指定模板或模板不存在，则是随机选择的
+            used_template = "随机选择"
 
         # 保存HTML文件
         html_dir = os.path.join(articles_dir, 'html')
@@ -274,13 +294,15 @@ def _convert_to_html(vx_app, filename: str) -> Dict[str, Any]:
         with open(html_file_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
 
-        vx_app.logger.info(f"HTML文件已生成: {html_file_path}")
+        vx_app.logger.info(f"HTML文件已生成: {html_file_path}，使用模板: {used_template}")
 
         return {
             'success': True,
             'data': {
                 'html_path': html_file_path,
-                'html_filename': html_filename
+                'html_filename': html_filename,
+                'template_used': used_template,
+                'message': f'HTML转换成功，使用模板: {used_template}'
             }
         }
 
@@ -289,6 +311,35 @@ def _convert_to_html(vx_app, filename: str) -> Dict[str, Any]:
         return {
             'success': False,
             'error': f'转换HTML失败: {str(e)}'
+        }
+
+
+def _get_templates(vx_app) -> Dict[str, Any]:
+    """
+    获取可用的样式模板列表
+    
+    Args:
+        vx_app: VXToolApp实例
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        templates = vx_app.html_converter.get_available_templates()
+        
+        return {
+            'success': True,
+            'data': {
+                'templates': templates,
+                'count': len(templates)
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"获取模板列表失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'获取模板列表失败: {str(e)}'
         }
 
 
