@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信公众号热点文章AI生成与发布系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .topic-item {
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .topic-item:hover {
+            border-color: #667eea;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+        }
+
+        .topic-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .topic-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .topic-title {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .heat {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .topic-item.selected .view-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .topic-item.selected .view-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-healthy {
+            background-color: #28a745;
+        }
+
+        .status-warning {
+            background-color: #ffc107;
+        }
+
+        .status-error {
+            background-color: #dc3545;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 VX Tool</h1>
+            <p>微信公众号热点文章AI生成与发布系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 系统状态 -->
+            <div class="section">
+                <h2 class="section-title">📊 系统状态</h2>
+                <div id="system-status">
+                    <div class="loading show">
+                        <div class="spinner"></div>
+                        <p>正在检查系统状态...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <!-- 热点话题获取 -->
+                <div class="section">
+                    <h2 class="section-title">🔥 热点话题</h2>
+                    
+                    <div class="form-group">
+                        <label for="platform-select">选择平台：</label>
+                        <select id="platform-select" class="form-control">
+                            <option value="微博">微博</option>
+                            <option value="抖音">抖音</option>
+                            <option value="哔哩哔哩">哔哩哔哩</option>
+                            <option value="今日头条">今日头条</option>
+                            <option value="百度">百度</option>
+                            <option value="知乎热榜">知乎</option>
+                    
+                            <option value="小红书">小红书</option>
+                            <option value="快手">快手</option>
+                            <option value="虎扑">虎扑</option>
+                            <option value="豆瓣小组">豆瓣小组</option>
+                            <option value="澎湃新闻">澎湃新闻</option>
+    
+                            <option value="微信">微信</option>
+                            <option value="实时榜中榜">实时榜中榜</option>
+                            <option value="开源中国">开源中国</option>
+                            <option value="GitHub">GitHub</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="fetch-topics-btn" class="btn btn-primary">获取热点话题</button>
+                    </div>
+
+                    <div id="topics-container">
+                        <!-- 话题列表将在这里显示 -->
+                    </div>
+                </div>
+
+                <!-- 文章生成 -->
+                <div class="section">
+                    <h2 class="section-title">✍️ 文章生成</h2>
+                    
+                    <div class="form-group">
+                        <label for="custom-title">相关话题：</label>
+                        <input type="text" id="custom-title" class="form-control" placeholder="输入自定义标题，或从左侧选择热点话题">
+                    </div>
+
+                    <div class="form-group">
+                        <button id="generate-only-btn" class="btn btn-primary">生成文章</button>
+                    </div>
+
+                    <div id="result-container">
+                        <!-- 结果将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class VXTool {
+            constructor() {
+                this.selectedTopic = null;
+                this.socket = null;
+                this.currentTaskId = null;
+                this.init();
+            }
+
+            init() {
+                this.initSocket();
+                this.bindEvents();
+                this.checkSystemStatus();
+            }
+
+            initSocket() {
+                this.socket = io();
+                
+                this.socket.on('connect', () => {
+                    console.log('WebSocket连接成功');
+                });
+                
+                this.socket.on('disconnect', () => {
+                    console.log('WebSocket连接断开');
+                });
+                
+                this.socket.on('task_update', (data) => {
+                    this.handleTaskUpdate(data);
+                });
+            }
+
+            handleTaskUpdate(data) {
+                if (data.task_id !== this.currentTaskId) {
+                    return;
+                }
+                
+                const container = document.getElementById('result-container');
+                
+                if (data.status === 'generating_title') {
+                    container.innerHTML = `
+                        <div class="loading show">
+                            <div class="spinner"></div>
+                            <p>正在生成吸引人的标题...</p>
+                        </div>
+                    `;
+                } else if (data.status === 'generating_article') {
+                    container.innerHTML = `
+                        <div class="loading show">
+                            <div class="spinner"></div>
+                            <p>正在生成文章内容...</p>
+                            <p>使用标题: ${data.title || '生成中...'}</p>
+                        </div>
+                    `;
+                } else if (data.status === 'saving') {
+                    container.innerHTML = `
+                        <div class="loading show">
+                            <div class="spinner"></div>
+                            <p>正在保存文章...</p>
+                        </div>
+                    `;
+                } else if (data.status === 'completed') {
+                    container.innerHTML = `
+                        <div class="alert alert-success">
+                            <h4>✅ 文章生成成功！</h4>
+                            <p><strong>原标题:</strong> ${data.original_title}</p>
+                            <p><strong>生成标题:</strong> ${data.final_title}</p>
+                            <p><strong>文件路径:</strong> ${data.file_path}</p>
+                            <p>文章已保存到本地文件！正在跳转到编辑页面...</p>
+                            <p>如果页面跳转失败，请自行访问 /editor </p>
+                        </div>
+                    `;
+                    
+                    // 重置按钮状态
+                    const btn = document.getElementById('generate-only-btn');
+                    btn.disabled = false;
+                    btn.textContent = '生成文章';
+                    this.currentTaskId = null;
+                    
+                    // 2秒后跳转到编辑页面
+                    setTimeout(() => {
+                        window.open('/editor', '_blank');
+                    }, 2000);
+                } else if (data.status === 'error') {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            <p>❌ ${data.error}</p>
+                        </div>
+                    `;
+                    
+                    // 重置按钮状态
+                    const btn = document.getElementById('generate-only-btn');
+                    btn.disabled = false;
+                    btn.textContent = '生成文章';
+                    this.currentTaskId = null;
+                }
+            }
+
+            bindEvents() {
+                // 获取热点话题
+                document.getElementById('fetch-topics-btn').addEventListener('click', () => {
+                    this.fetchTopics();
+                });
+
+                // 仅生成文章
+                document.getElementById('generate-only-btn').addEventListener('click', () => {
+                    this.generateArticle();
+                });
+            }
+
+            async checkSystemStatus() {
+                try {
+                    const response = await fetch('/api/status');
+                    const result = await response.json();
+                    
+                    const statusContainer = document.getElementById('system-status');
+                    
+                    if (result.success) {
+                        const status = result.data.status;
+                        const overall = result.data.overall;
+                        
+                        // 动态获取AI模型状态
+                        const aiModelKey = Object.keys(status).find(key => key.endsWith('_api'));
+                        const aiModelName = aiModelKey ? aiModelKey.replace('_api', '').toUpperCase() : 'AI';
+                        const aiModelStatus = aiModelKey ? status[aiModelKey] : false;
+                        
+                        statusContainer.innerHTML = `
+                            <div class="alert alert-${overall === 'healthy' ? 'success' : 'info'}">
+                                <h4>🔧 系统组件状态</h4>
+                                <p><span class="status-indicator status-${aiModelStatus ? 'healthy' : 'error'}"></span>${aiModelName} AI: ${aiModelStatus ? '正常' : '异常'}</p>
+                                <p><span class="status-indicator status-${status.wechat_api ? 'healthy' : 'error'}"></span>微信API: ${status.wechat_api ? '正常' : '异常'}</p>
+                                <p><span class="status-indicator status-${status.wechat_verified ? 'healthy' : 'warning'}"></span>微信认证: ${status.wechat_verified ? '已认证' : '未认证'}</p>
+                                <p><strong>${result.data.message}</strong></p>
+                            </div>
+                        `;
+                    } else {
+                        statusContainer.innerHTML = `
+                            <div class="alert alert-error">
+                                <p>❌ 系统状态检查失败: ${result.error}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    document.getElementById('system-status').innerHTML = `
+                        <div class="alert alert-error">
+                            <p>❌ 无法连接到服务器</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async fetchTopics() {
+                const platform = document.getElementById('platform-select').value;
+                const btn = document.getElementById('fetch-topics-btn');
+                const container = document.getElementById('topics-container');
+                
+                btn.disabled = true;
+                btn.textContent = '获取中...';
+                
+                container.innerHTML = `
+                    <div class="loading show">
+                        <div class="spinner"></div>
+                        <p>正在获取${platform}热点话题...</p>
+                    </div>
+                `;
+
+                try {
+                    const response = await fetch(`/api/hot-topics?platform=${encodeURIComponent(platform)}&count=30`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const topics = result.data.topics;
+                        
+                        if (topics.length > 0) {
+                            container.innerHTML = `
+                                <div class="topics-grid">
+                                    ${topics.map((topic, index) => `
+                                        <div class="topic-item" data-topic="${topic.name || topic}">
+                                            <div class="topic-content">
+                                                <div class="topic-title">
+                                                    <strong>#${topic.rank || (index + 1)}</strong> ${topic.name || topic}
+                                                </div>
+                                                <div class="topic-meta">
+                                                    ${topic.lastCount ? `<span class="heat">🔥 ${topic.lastCount}</span>` : ''}
+                                                    ${topic.url ? `<button class="view-btn" onclick="window.open('${topic.url}', '_blank')">查看</button>` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            
+                            // 绑定话题选择事件
+                            container.querySelectorAll('.topic-item').forEach(item => {
+                                item.addEventListener('click', (e) => {
+                                    // 如果点击的是查看按钮，不触发选择事件
+                                    if (e.target.classList.contains('view-btn')) {
+                                        return;
+                                    }
+                                    
+                                    // 移除其他选中状态
+                                    container.querySelectorAll('.topic-item').forEach(i => i.classList.remove('selected'));
+                                    // 添加选中状态
+                                    item.classList.add('selected');
+                                    // 保存选中的话题
+                                    this.selectedTopic = item.dataset.topic;
+                                    // 更新自定义标题输入框
+                                    document.getElementById('custom-title').value = this.selectedTopic;
+                                });
+                            });
+                        } else {
+                            container.innerHTML = `
+                                <div class="alert alert-info">
+                                    <p>📝 暂无${platform}热点话题数据</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-error">
+                                <p>❌ ${result.error}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            <p>❌ 网络请求失败，请检查服务器连接</p>
+                        </div>
+                    `;
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '获取热点话题';
+                }
+            }
+
+            async generateArticle() {
+                const title = document.getElementById('custom-title').value.trim();
+                
+                if (!title) {
+                    this.showResult('error', '请输入相关话题或选择热点话题');
+                    return;
+                }
+
+                const btn = document.getElementById('generate-only-btn');
+                const container = document.getElementById('result-container');
+                
+                btn.disabled = true;
+                btn.textContent = '生成中...';
+                
+                container.innerHTML = `
+                    <div class="loading show">
+                        <div class="spinner"></div>
+                        <p>正在初始化生成任务...</p>
+                    </div>
+                `;
+
+                try {
+                    const response = await fetch('/api/generate-article', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ title })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // 保存任务ID用于接收WebSocket更新
+                        this.currentTaskId = result.data.task_id;
+                        
+                        container.innerHTML = `
+                            <div class="loading show">
+                                <div class="spinner"></div>
+                                <p>任务已启动，正在生成文章...</p>
+                                <p>任务ID: ${result.data.task_id}</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-error">
+                                <p>❌ ${result.error}</p>
+                            </div>
+                        `;
+                        
+                        btn.disabled = false;
+                        btn.textContent = '生成文章';
+                    }
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            <p>❌ 网络请求失败，请检查服务器连接</p>
+                        </div>
+                    `;
+                    
+                    btn.disabled = false;
+                    btn.textContent = '生成文章';
+                }
+            }
+
+            showResult(type, message) {
+                const container = document.getElementById('result-container');
+                const alertClass = type === 'error' ? 'alert-error' : 'alert-info';
+                
+                container.innerHTML = `
+                    <div class="alert ${alertClass}">
+                        <p>${message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new VXTool();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章编辑器 - VX Tool</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 300;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: red !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: red !important;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: black !important;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            color: black !important;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: black !important;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            color: black !important;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529 !important;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            color: #212529 !important;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: #ffffff !important;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #e1e5e9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            background: #f8f9fa;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .file-item {
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+            border: 1px solid transparent;
+        }
+
+        .file-item:hover {
+            background: #f0f0f0;
+        }
+
+        .file-item.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .file-date {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .editor-toolbar {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e1e5e9;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-file {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .toolbar-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: calc(100vh - 200px) !important;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+        }
+
+        .CodeMirror-scroll {
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+            max-height: calc(100vh - 200px) !important;
+        }
+
+        .CodeMirror-lines {
+            padding: 10px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 10px 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .header-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .toolbar-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 文章编辑器</h1>
+        <div class="header-buttons">
+            <button class="btn btn-close" onclick="window.close()">关闭编辑器</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>📁 文章列表</h3>
+                <button class="refresh-btn" onclick="editor.loadFileList()">刷新</button>
+            </div>
+            <div class="file-list" id="file-list">
+                <div class="loading show">
+                    <div class="spinner"></div>
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-toolbar">
+                <div class="current-file" id="current-file">请选择一个文件开始编辑</div>
+                <div class="toolbar-buttons">
+                    <button class="btn btn-success" id="save-btn" onclick="editor.saveFile()" disabled>💾 保存修改</button>
+                    <button class="btn btn-info" id="convert-btn" onclick="editor.convertToHtml()" disabled>🔄 转换HTML</button>
+                    <button class="btn btn-warning" id="preview-btn" onclick="editor.previewHtml()" disabled>👁️ 查看HTML</button>
+                    <button class="btn btn-primary" id="publish-btn" onclick="editor.publishToWechat()" disabled>📤 发布公众号</button>
+                </div>
+            </div>
+            
+            <div id="alert-container"></div>
+            
+            <div class="editor-wrapper">
+                <div class="empty-state" id="empty-state">
+                    <h3>🚀 开始编辑</h3>
+                    <p>从左侧选择一个Markdown文件开始编辑</p>
+                </div>
+                <textarea id="markdown-editor" style="display: none;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+    <script>
+        class MarkdownEditor {
+            constructor() {
+                this.currentFile = null;
+                this.easyMDE = null;
+                this.init();
+            }
+
+            init() {
+                this.loadFileList();
+                this.initEditor();
+            }
+
+            initEditor() {
+                this.easyMDE = new EasyMDE({
+                    element: document.getElementById('markdown-editor'),
+                    spellChecker: false,
+                    autofocus: false,
+                    placeholder: '开始编写你的文章...',
+                    toolbar: [
+                        'bold', 'italic', 'heading', '|',
+                        'quote', 'unordered-list', 'ordered-list', '|',
+                        'link', 'image', 'table', '|',
+                        'preview', 'side-by-side', 'fullscreen', '|',
+                        'guide'
+                    ],
+                    status: ['autosave', 'lines', 'words', 'cursor'],
+                    autosave: {
+                        enabled: false
+                    }
+                });
+            }
+
+            async loadFileList() {
+                const container = document.getElementById('file-list');
+                container.innerHTML = `
+                    <div class="loading show">
+                        <div class="spinner"></div>
+                        <p>加载中...</p>
+                    </div>
+                `;
+
+                try {
+                    const response = await fetch('/api/articles');
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const files = result.data.files;
+                        
+                        if (files.length > 0) {
+                            container.innerHTML = files.map(file => `
+                                <div class="file-item" data-filename="${file.name}" onclick="editor.loadFile('${file.name}')">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-date">${file.modified}</div>
+                                </div>
+                            `).join('');
+                        } else {
+                            container.innerHTML = `
+                                <div class="empty-state">
+                                    <h3>📄 暂无文章</h3>
+                                    <p>还没有生成任何文章</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        container.innerHTML = `
+                            <div class="alert alert-error">
+                                <p>❌ ${result.error}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            <p>❌ 加载文件列表失败</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async loadFile(filename) {
+                try {
+                    const response = await fetch(`/api/articles/${encodeURIComponent(filename)}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.currentFile = filename;
+                        this.easyMDE.value(result.data.content);
+                        
+                        // 更新UI状态
+                        document.getElementById('current-file').textContent = filename;
+                        document.getElementById('empty-state').style.display = 'none';
+                        // markdown-editor元素已被隐藏，不需要显示
+                        
+                        // 启用按钮
+                        document.getElementById('save-btn').disabled = false;
+                        document.getElementById('convert-btn').disabled = false;
+                        document.getElementById('preview-btn').disabled = false;
+                        document.getElementById('publish-btn').disabled = false;
+                        
+                        // 更新选中状态
+                        document.querySelectorAll('.file-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        document.querySelector(`[data-filename="${filename}"]`).classList.add('selected');
+                        
+                        this.showAlert('success', `文件 ${filename} 加载成功`);
+                    } else {
+                        this.showAlert('error', result.error);
+                    }
+                } catch (error) {
+                    this.showAlert('error', '加载文件失败');
+                }
+            }
+
+            async saveFile() {
+                if (!this.currentFile) {
+                    this.showAlert('error', '请先选择一个文件');
+                    return;
+                }
+
+                const content = this.easyMDE.value();
+                const btn = document.getElementById('save-btn');
+                const originalText = btn.textContent;
+                
+                btn.disabled = true;
+                btn.textContent = '保存中...';
+
+                try {
+                    const response = await fetch(`/api/articles/${encodeURIComponent(this.currentFile)}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ content })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showAlert('success', '文件保存成功');
+                    } else {
+                        this.showAlert('error', result.error);
+                    }
+                } catch (error) {
+                    this.showAlert('error', '保存文件失败');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            }
+
+            async convertToHtml() {
+                if (!this.currentFile) {
+                    this.showAlert('error', '请先选择一个文件');
+                    return;
+                }
+
+                const btn = document.getElementById('convert-btn');
+                const originalText = btn.textContent;
+                
+                btn.disabled = true;
+                btn.textContent = '转换中...';
+
+                try {
+                    const response = await fetch(`/api/convert-html/${encodeURIComponent(this.currentFile)}`, {
+                        method: 'POST'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showAlert('success', `HTML文件已生成: ${result.data.html_path}`);
+                    } else {
+                        this.showAlert('error', result.error);
+                    }
+                } catch (error) {
+                    this.showAlert('error', '转换HTML失败');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            }
+
+            async previewHtml() {
+                if (!this.currentFile) {
+                    this.showAlert('error', '请先选择一个文件');
+                    return;
+                }
+
+                const htmlFilename = this.currentFile.replace('.md', '.html');
+                
+                // 检查HTML文件是否存在
+                try {
+                    const response = await fetch(`/preview/${encodeURIComponent(htmlFilename)}`, {
+                        method: 'HEAD'
+                    });
+                    
+                    if (response.status === 404) {
+                        this.showAlert('error', '请先生成HTML');
+                        return;
+                    }
+                    
+                    if (!response.ok) {
+                        this.showAlert('error', '检查HTML文件失败，请先生成HTML');
+                        return;
+                    }
+                    
+                    window.open(`/preview/${encodeURIComponent(htmlFilename)}`, '_blank');
+                } catch (error) {
+                    this.showAlert('error', '请先生成HTML');
+                }
+            }
+
+            async publishToWechat() {
+                if (!this.currentFile) {
+                    this.showAlert('error', '请先选择一个文件');
+                    return;
+                }
+
+                const btn = document.getElementById('publish-btn');
+                const originalText = btn.textContent;
+                
+                btn.disabled = true;
+                btn.textContent = '发布中...';
+
+                try {
+                    const response = await fetch(`/api/publish-wechat/${encodeURIComponent(this.currentFile)}`, {
+                        method: 'POST'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showAlert('success', `文章已发布到微信草稿箱，Media ID: ${result.data.media_id}`);
+                    } else {
+                        this.showAlert('error', result.error);
+                    }
+                } catch (error) {
+                    this.showAlert('error', '发布到微信失败');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            }
+
+            showAlert(type, message) {
+                const container = document.getElementById('alert-container');
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.innerHTML = `<p>${message}</p>`;
+                
+                container.appendChild(alertDiv);
+                
+                // 3秒后自动移除
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 3000);
+            }
+        }
+
+        // 初始化编辑器
+        const editor = new MarkdownEditor();
+    </script>
+</body>
+</html>

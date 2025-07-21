@@ -1,0 +1,22 @@
+# Web框架
+flask
+flask-cors
+flask-socketio
+
+# AI模型
+google-generativeai
+openai
+
+# HTML处理
+markdown
+beautifulsoup4
+
+# HTTP请求
+requests
+
+# 配置文件处理
+configparser
+
+# 其他工具
+lxml
+Pygments

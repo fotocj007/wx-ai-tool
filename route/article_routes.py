@@ -1,0 +1,368 @@
+# -*- coding: utf-8 -*-
+"""
+文章路由模块
+包含文章生成、编辑、转换等相关路由
+"""
+
+from flask import request, send_file, abort
+from typing import Dict, Any
+import os
+import glob
+from datetime import datetime
+import re
+
+
+def register_article_routes(app, vx_app):
+    """
+    注册文章相关路由
+    
+    Args:
+        app: Flask应用实例
+        vx_app: VXToolApp实例
+    """
+    
+    @app.route('/api/generate-article', methods=['POST'])
+    def generate_article():
+        """仅生成文章（不发布）"""
+        return _generate_article(vx_app)
+    
+    
+    @app.route('/api/articles', methods=['GET'])
+    def articles_list():
+        """获取文章列表"""
+        return _get_articles_list(vx_app)
+    
+    @app.route('/api/articles/<filename>', methods=['GET'])
+    def article_detail(filename):
+        """获取文章内容"""
+        return _get_article_content(vx_app, filename)
+    
+    @app.route('/api/articles/<filename>', methods=['PUT'])
+    def article_update(filename):
+        """更新文章内容"""
+        return _update_article_content(vx_app, filename)
+    
+    @app.route('/api/convert-html/<filename>', methods=['POST'])
+    def convert_html(filename):
+        """将Markdown转换为HTML"""
+        return _convert_to_html(vx_app, filename)
+    
+    @app.route('/preview/<filename>', methods=['GET'])
+    def preview_html(filename):
+        """预览HTML文件"""
+        return _preview_html(vx_app, filename)
+    
+    @app.route('/api/task-status/<task_id>', methods=['GET'])
+    def task_status(task_id):
+        """获取任务状态"""
+        return _get_task_status(vx_app, task_id)
+
+
+def _generate_article(vx_app) -> Dict[str, Any]:
+    """
+    仅生成文章（不发布）- 异步版本
+    
+    Args:
+        vx_app: VXToolApp实例
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        data = request.get_json()
+        if not data or 'title' not in data:
+            return {
+                'success': False,
+                'error': '缺少必要参数: title'
+            }
+        
+        title = data['title']
+        use_catchy_title = data.get('use_catchy_title', True)
+        
+        vx_app.logger.info(f"开始异步生成文章: {title}")
+        
+        # 启动异步任务
+        task_id = vx_app.start_article_generation(title, use_catchy_title)
+        
+        return {
+            'success': True,
+            'data': {
+                'task_id': task_id,
+                'message': '文章生成任务已启动，请通过WebSocket监听进度'
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"启动文章生成任务失败: {e}")
+        return {
+            'success': False,
+            'error': f'启动文章生成任务失败: {str(e)}'
+        }
+
+def _get_articles_list(vx_app) -> Dict[str, Any]:
+    """
+    获取文章列表
+    
+    Args:
+        vx_app: VXToolApp实例
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        if not os.path.exists(articles_dir):
+            os.makedirs(articles_dir)
+        
+        md_files = glob.glob(os.path.join(articles_dir, '*.md'))
+        files = []
+        
+        for file_path in md_files:
+            filename = os.path.basename(file_path)
+            stat = os.stat(file_path)
+            modified = datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+            
+            files.append({
+                'name': filename,
+                'modified': modified,
+                'size': stat.st_size
+            })
+        
+        # 按修改时间倒序排列
+        files.sort(key=lambda x: x['modified'], reverse=True)
+        
+        return {
+            'success': True,
+            'data': {
+                'files': files,
+                'total': len(files)
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"获取文章列表失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'获取文章列表失败: {str(e)}'
+        }
+
+
+def _get_article_content(vx_app, filename: str) -> Dict[str, Any]:
+    """
+    获取文章内容
+    
+    Args:
+        vx_app: VXToolApp实例
+        filename: 文件名
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        file_path = os.path.join(articles_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return {
+                'success': False,
+                'error': '文件不存在'
+            }
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        return {
+            'success': True,
+            'data': {
+                'filename': filename,
+                'content': content
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"读取文章内容失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'读取文章内容失败: {str(e)}'
+        }
+
+
+def _update_article_content(vx_app, filename: str) -> Dict[str, Any]:
+    """
+    更新文章内容
+    
+    Args:
+        vx_app: VXToolApp实例
+        filename: 文件名
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        data = request.get_json()
+        content = data.get('content', '')
+        
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        file_path = os.path.join(articles_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return {
+                'success': False,
+                'error': '文件不存在'
+            }
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        vx_app.logger.info(f"文章已更新: {filename}")
+        
+        return {
+            'success': True,
+            'data': {
+                'filename': filename,
+                'message': '文件保存成功'
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"更新文章内容失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'更新文章内容失败: {str(e)}'
+        }
+
+
+def _convert_to_html(vx_app, filename: str) -> Dict[str, Any]:
+    """
+    将Markdown转换为HTML
+    
+    Args:
+        vx_app: VXToolApp实例
+        filename: 文件名
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        md_file_path = os.path.join(articles_dir, filename)
+        
+        if not os.path.exists(md_file_path):
+            return {
+                'success': False,
+                'error': '文件不存在'
+            }
+        
+        # 读取Markdown内容
+        with open(md_file_path, 'r', encoding='utf-8') as f:
+            md_content = f.read()
+        
+        # 从文件名提取标题
+        title = filename.replace('.md', '').replace('_', ' ')
+        if title.startswith('2'):
+            # 如果以日期开头，去掉日期部分
+            parts = title.split('_', 2)
+            if len(parts) >= 3:
+                title = parts[2]
+        
+        # 转换为HTML
+        html_content = vx_app.html_converter.markdown_to_styled_html(md_content, title)
+        
+        # 保存HTML文件
+        html_dir = os.path.join(articles_dir, 'html')
+        if not os.path.exists(html_dir):
+            os.makedirs(html_dir)
+        
+        html_filename = filename.replace('.md', '.html')
+        html_file_path = os.path.join(html_dir, html_filename)
+        
+        with open(html_file_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        vx_app.logger.info(f"HTML文件已生成: {html_file_path}")
+        
+        return {
+            'success': True,
+            'data': {
+                'html_path': html_file_path,
+                'html_filename': html_filename
+            }
+        }
+        
+    except Exception as e:
+        vx_app.logger.error(f"转换HTML失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'转换HTML失败: {str(e)}'
+        }
+
+
+def _preview_html(vx_app, filename: str):
+    """
+    预览HTML文件
+    
+    Args:
+        vx_app: VXToolApp实例
+        filename: 文件名
+        
+    Returns:
+        Flask response
+    """
+    try:
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        html_dir = os.path.join(articles_dir, 'html')
+        html_file_path = os.path.join(html_dir, filename)
+        
+        if not os.path.exists(html_file_path):
+            vx_app.logger.warning(f"HTML文件不存在: {html_file_path}")
+            return abort(404)  # 返回HTTP 404状态码
+        
+        return send_file(html_file_path, mimetype='text/html')
+        
+    except Exception as e:
+        vx_app.logger.error(f"预览HTML失败: {str(e)}")
+        abort(500)  # 返回HTTP 500状态码
+
+
+def _get_task_status(vx_app, task_id: str) -> Dict[str, Any]:
+    """
+    获取任务状态
+    
+    Args:
+        vx_app: VXToolApp实例
+        task_id: 任务ID
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        status = vx_app.get_task_status(task_id)
+        return {
+            'success': True,
+            'data': status
+        }
+    except Exception as e:
+        vx_app.logger.error(f"获取任务状态失败: {e}")
+        return {
+            'success': False,
+            'error': f'获取任务状态失败: {str(e)}'
+        }
+
+
+def _sanitize_filename(filename: str) -> str:
+    """
+    清理文件名中的特殊字符
+    
+    Args:
+        filename: 原始文件名
+    
+    Returns:
+        str: 清理后的文件名
+    """
+    # 移除或替换不安全字符
+    filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
+    filename = re.sub(r'[\s]+', '_', filename)
+    # 限制长度
+    if len(filename) > 50:
+        filename = filename[:50]
+    return filename

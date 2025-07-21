@@ -1,0 +1,21 @@
+
+创建环境：
+conda create -n weix_tool python=3.10
+
+
+激活：
+conda activate weix_tool 
+
+
+安装：
+pip install -r requirements.txt
+
+
+
+运行：
+python run.py
+
+
+
+退出：
+conda deactivate

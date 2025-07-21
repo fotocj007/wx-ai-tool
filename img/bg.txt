@@ -1,0 +1,6 @@
+{
+  "media_id": "EF7VHE-OwktAlfmOV7P8jciCDB195UQ3ZAeJtU8NKL9YXU5JAmRX1gcxTAvNnF5Y",
+  "url": "http://mmbiz.qpic.cn/mmbiz_png/J0gXYmMB7QyQ03eqpqeB5Q4fUe9MwvBLhib7aLGvfkFII651ZKMy9UJlnJ2wzJ9NfYMEHGjkrMxLpwiaA31zWZHg/0?wx_fmt=png",
+  "upload_time": 1752835947.5366557,
+  "file_name": "bg.png"
+}
