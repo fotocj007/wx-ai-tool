@@ -159,33 +159,6 @@ class TemplateManager:
                 }
             },
             
-            # SVG动画主题 - 动态效果
-            'svg_animation': {
-                'name': 'SVG动画主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 30px; font-family: "Microsoft YaHei", "Helvetica Neue", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.7; border-radius: 15px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;',
-                'styles': {
-                    'h1': 'font-size: 28px; font-weight: bold; color: #ffffff; margin: 30px 0 25px; padding: 25px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); border-radius: 12px; text-align: center; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); position: relative; overflow: hidden; animation: pulse 2s infinite;',
-                    'h2': 'font-size: 24px; font-weight: bold; color: #4ecdc4; margin: 25px 0 20px; padding: 20px; background: rgba(78, 205, 196, 0.1); border-radius: 10px; border-left: 5px solid #4ecdc4; position: relative; animation: slideInLeft 0.8s ease-out;',
-                    'h3': 'font-size: 20px; font-weight: bold; color: #ff6b6b; margin: 20px 0 15px; padding-left: 20px; border-left: 4px solid #ff6b6b; position: relative; animation: fadeInUp 0.6s ease-out;',
-                    'h4': 'font-size: 18px; font-weight: bold; color: #feca57; margin: 15px 0 10px; animation: fadeIn 0.5s ease-out;',
-                    'p': 'font-size: 16px; color: #000000; line-height: 1.8; margin-bottom: 18px; text-align: justify; animation: fadeInUp 0.7s ease-out;',
-                    'strong': 'color: #feca57; font-weight: bold; background: rgba(254, 202, 87, 0.2); padding: 3px 6px; border-radius: 4px; animation: glow 2s infinite alternate;',
-                    'em': 'color: #ff9ff3; font-style: italic; background: rgba(255, 159, 243, 0.2); padding: 2px 4px; border-radius: 3px;',
-                    'ul': 'padding-left: 30px; margin: 20px 0; animation: slideInRight 0.8s ease-out;',
-                    'ol': 'padding-left: 30px; margin: 20px 0; animation: slideInRight 0.8s ease-out;',
-                    'li': 'margin-bottom: 12px; line-height: 1.7; color: #000000; position: relative; animation: fadeInLeft 0.6s ease-out;',
-                    'blockquote': 'border-left: 5px solid #4ecdc4; padding: 25px; color: #e8f4f8; font-style: italic; margin: 25px 0; background: rgba(78, 205, 196, 0.15); border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); animation: bounceIn 1s ease-out;',
-                    'code': 'background: rgba(0, 0, 0, 0.4); padding: 5px 10px; border-radius: 6px; font-family: "Consolas", "Monaco", monospace; color: #feca57; border: 1px solid #4ecdc4; animation: flash 3s infinite;',
-                    'pre': 'background: rgba(0, 0, 0, 0.5); padding: 25px; border-radius: 12px; border: 2px solid #4ecdc4; overflow-x: auto; margin: 25px 0; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); animation: zoomIn 0.8s ease-out;',
-                    'a': 'color: #4ecdc4; text-decoration: none; border-bottom: 2px dotted #4ecdc4; transition: all 0.3s ease; animation: pulse 2s infinite;',
-                    'img': 'max-width: 100%; height: auto; display: block; margin: 25px auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 3px solid #4ecdc4; animation: rotateIn 1s ease-out;',
-                    'table': 'border-collapse: collapse; width: 100%; margin: 25px 0; background: rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); animation: fadeInUp 0.8s ease-out;',
-                    'th': 'border: 1px solid #4ecdc4; padding: 18px; background: rgba(78, 205, 196, 0.3); font-weight: bold; text-align: center; color: #ffffff; animation: pulse 2s infinite;',
-                    'td': 'border: 1px solid #4ecdc4; padding: 15px; text-align: left; color: #000000;',
-                    'hr': 'border: none; height: 4px; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #feca57, #ff6b6b); margin: 30px 0; border-radius: 2px; animation: rainbow 3s linear infinite;'
-                }
-            },
-            
             # 数字序列主题 - 1、2、3连续标题
             'numbered_sequence': {
                 'name': '数字序列主题',

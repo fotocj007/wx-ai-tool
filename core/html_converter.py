@@ -30,15 +30,15 @@ class HTMLConverter:
     
     def markdown_to_styled_html(self, md_content: str, title: str = "", template_name: str = None) -> Optional[str]:
         """
-        将Markdown转换为带有内联CSS样式的HTML
+        将Markdown转换为带有内联CSS样式的完整HTML文档
         
         Args:
             md_content: Markdown内容
-            title: 文章标题（仅用于日志记录）
+            title: 文章标题（用于HTML title标签）
             template_name: 指定样式模板名称，如果为None则随机选择
         
         Returns:
-            str: 转换后的HTML内容，失败返回None
+            str: 转换后的完整HTML文档内容，失败返回None
         """
         try:
             # 选择样式模板
@@ -69,11 +69,11 @@ class HTMLConverter:
             # 3. 应用选定模板的样式
             self._apply_template_styles(soup, selected_template['styles'])
             
-            # 4. 添加整体容器样式
-            styled_html = self._wrap_with_template_container(str(soup), selected_template['container'], template_name)
+            # 4. 构建完整的HTML文档
+            complete_html = self._build_complete_html_document(str(soup), selected_template, title, template_name)
             
             self.logger.info(f"Markdown转HTML完成，使用模板: {selected_template['name']}")
-            return styled_html
+            return complete_html
             
         except Exception as e:
             self.logger.error(f"Markdown转HTML失败: {e}")
@@ -81,7 +81,7 @@ class HTMLConverter:
     
     def _apply_template_styles(self, soup: BeautifulSoup, style_map: dict):
         """
-        应用模板样式
+        应用模板样式到HTML元素
         
         Args:
             soup: BeautifulSoup对象
@@ -96,153 +96,54 @@ class HTMLConverter:
                 else:
                     tag['style'] = style
     
-    def _wrap_with_template_container(self, html_content: str, container_style: str, template_name: str = None) -> str:
+    def _build_complete_html_document(self, html_content: str, selected_template: dict, title: str = "", template_name: str = None) -> str:
         """
-        用模板容器包装HTML内容
+        构建完整的HTML文档，参考t1.html的结构
         
         Args:
-            html_content: HTML内容
-            container_style: 容器样式
+            html_content: 转换后的HTML内容
+            selected_template: 选定的样式模板
+            title: 文档标题
             template_name: 模板名称，用于决定是否添加特殊样式
         
         Returns:
-            str: 包装后的HTML
+            str: 完整的HTML文档
         """
-        css_styles = ""
+        # 获取容器样式
+        container_style = selected_template['container']
         
-        # 根据模板类型添加相应的CSS样式
-        if template_name == 'svg_animation':
-            # 只为SVG动画主题添加动画样式
-            css_styles = """
-            <style>
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-                100% { transform: scale(1); }
-            }
-            @keyframes slideInLeft {
-                0% { transform: translateX(-100%); opacity: 0; }
-                100% { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideInRight {
-                0% { transform: translateX(100%); opacity: 0; }
-                100% { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes fadeInUp {
-                0% { transform: translateY(30px); opacity: 0; }
-                100% { transform: translateY(0); opacity: 1; }
-            }
-            @keyframes fadeInLeft {
-                0% { transform: translateX(-30px); opacity: 0; }
-                100% { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes fadeIn {
-                0% { opacity: 0; }
-                100% { opacity: 1; }
-            }
-            @keyframes bounceIn {
-                0% { transform: scale(0.3); opacity: 0; }
-                50% { transform: scale(1.05); }
-                70% { transform: scale(0.9); }
-                100% { transform: scale(1); opacity: 1; }
-            }
-            @keyframes flash {
-                0%, 50%, 100% { opacity: 1; }
-                25%, 75% { opacity: 0.5; }
-            }
-            @keyframes zoomIn {
-                0% { transform: scale(0.5); opacity: 0; }
-                100% { transform: scale(1); opacity: 1; }
-            }
-            @keyframes rotateIn {
-                0% { transform: rotate(-200deg); opacity: 0; }
-                100% { transform: rotate(0); opacity: 1; }
-            }
-            @keyframes rainbow {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-            }
-            @keyframes glow {
-                0% { text-shadow: 0 0 5px rgba(254, 202, 87, 0.5); }
-                100% { text-shadow: 0 0 20px rgba(254, 202, 87, 0.8), 0 0 30px rgba(254, 202, 87, 0.6); }
-            }
-            </style>
-            """
-        elif template_name == 'numbered_sequence':
-            # 只为数字序列主题添加数字样式
-            css_styles = """
-            <style>
-            /* 数字序列样式 */
-            h2::before {
-                content: counter(section);
-                position: absolute;
-                left: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 35px;
-                height: 35px;
-                background: linear-gradient(45deg, #667eea, #764ba2);
-                color: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 18px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            }
+        # 为数字序列主题添加特殊的数字标记样式
+        if template_name == 'numbered_sequence':
+            soup = BeautifulSoup(html_content, 'html.parser')
             
-            h3::before {
-                content: counter(section) "." counter(subsection);
-                position: absolute;
-                left: 15px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 30px;
-                height: 30px;
-                background: linear-gradient(45deg, #f5576c, #f093fb);
-                color: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 14px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
+            # 为h2标签添加数字序列的特殊样式
+            for i, h2 in enumerate(soup.find_all('h2'), 1):
+                existing_style = h2.get('style', '')
+                number_style = "position: relative; padding-left: 70px;"
+                if existing_style:
+                    h2['style'] = f"{existing_style}; {number_style}"
+                else:
+                    h2['style'] = number_style
+                    
+                # 添加数字元素
+                number_span = soup.new_tag('span')
+                number_span.string = str(i)
+                number_span['style'] = "position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);"
+                h2.insert(0, number_span)
             
-            h4::before {
-                content: counter(section) "." counter(subsection) "." counter(subsubsection);
-                position: absolute;
-                left: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 25px;
-                height: 25px;
-                background: linear-gradient(45deg, #f093fb, #667eea);
-                color: white;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 12px;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            }
-            
-            /* 重置子计数器 */
-            h2 {
-                counter-reset: subsection;
-            }
-            h3 {
-                counter-reset: subsubsection;
-            }
-            </style>
-            """
+            html_content = str(soup)
         
-        wrapped_html = f'{css_styles}<div style="{container_style}">{html_content}</div>'
-        return wrapped_html
+        # 构建完整的HTML文档结构，参考t1.html的格式
+        complete_html = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<body>
+  <section style="{container_style}">
+    {html_content}
+  </section>
+</body>
+</html>"""
+        
+        return complete_html
     
     def get_available_templates(self) -> list:
         """
@@ -270,7 +171,7 @@ class HTMLConverter:
         从HTML内容中提取摘要
         
         Args:
-            html_content: HTML内容
+            html_content: HTML内容（可以是完整文档或片段）
             max_length: 最大长度
         
         Returns:
