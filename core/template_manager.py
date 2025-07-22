@@ -27,7 +27,7 @@ class TemplateManager:
             # 科技蓝色主题 - 现代科技感
             'tech_blue': {
                 'name': '科技蓝色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 20px; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.6; border-radius: 10px;',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.6; border-radius: 10px;',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: bold; color: #00d4ff; margin: 30px 0 20px; padding: 15px; background: rgba(0, 212, 255, 0.1); border-radius: 8px; text-align: center; border: 2px solid #00d4ff;',
                     'h2': 'font-size: 22px; font-weight: bold; color: #00d4ff; margin: 25px 0 15px; padding-left: 15px; border-left: 4px solid #00d4ff; background: rgba(0, 212, 255, 0.05);',
@@ -54,7 +54,7 @@ class TemplateManager:
             # 温馨橙色主题 - 温暖亲和
             'warm_orange': {
                 'name': '温馨橙色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 25px; font-family: "Microsoft YaHei", "PingFang SC", serif; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #5d4037; line-height: 1.7; border-radius: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "PingFang SC", serif; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #5d4037; line-height: 1.7; border-radius: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #d84315; margin: 30px 0 20px; padding: 20px; background: #fff3e0; border-radius: 12px; text-align: center; border: 3px solid #ff8a65; box-shadow: 0 4px 8px rgba(216, 67, 21, 0.2);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #e65100; margin: 25px 0 15px; padding: 12px 20px; background: #fff8f5; border-radius: 8px; border-left: 5px solid #ff8a65;',
@@ -81,7 +81,7 @@ class TemplateManager:
             # 商务灰色主题 - 专业商务
             'business_gray': {
                 'name': '商务灰色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 30px; font-family: "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #2c3e50; line-height: 1.6; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #2c3e50; line-height: 1.6; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: 700; color: #2c3e50; margin: 35px 0 25px; padding: 25px; background: #ffffff; border-radius: 6px; text-align: center; border-top: 4px solid #3498db; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);',
                     'h2': 'font-size: 24px; font-weight: 600; color: #34495e; margin: 30px 0 20px; padding: 15px 25px; background: #ecf0f1; border-radius: 4px; border-left: 4px solid #3498db;',
@@ -108,7 +108,7 @@ class TemplateManager:
             # 娱乐粉色主题 - 活泼时尚
             'entertainment_pink': {
                 'name': '娱乐粉色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 25px; font-family: "Microsoft YaHei", "Comic Sans MS", cursive; background: linear-gradient(135deg, #ffeef8 0%, #f8d7da 100%); color: #6f2c91; line-height: 1.7; border-radius: 20px; box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "Comic Sans MS", cursive; background: linear-gradient(135deg, #ffeef8 0%, #f8d7da 100%); color: #6f2c91; line-height: 1.7; border-radius: 20px; box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #e91e63; margin: 30px 0 20px; padding: 20px; background: linear-gradient(45deg, #ff69b4, #ff1493); color: white; border-radius: 15px; text-align: center; box-shadow: 0 6px 15px rgba(233, 30, 99, 0.3); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #c2185b; margin: 25px 0 15px; padding: 15px 20px; background: #fce4ec; border-radius: 12px; border: 2px solid #f48fb1; box-shadow: 0 3px 8px rgba(196, 24, 91, 0.2);',
@@ -135,7 +135,7 @@ class TemplateManager:
             # 自然绿色主题 - 清新自然
             'nature_green': {
                 'name': '自然绿色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 25px; font-family: "Microsoft YaHei", "Georgia", serif; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #2e7d32; line-height: 1.7; border-radius: 12px; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "Georgia", serif; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #2e7d32; line-height: 1.7; border-radius: 12px; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #1b5e20; margin: 30px 0 20px; padding: 20px; background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; border-radius: 10px; text-align: center; box-shadow: 0 6px 15px rgba(27, 94, 32, 0.3); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #2e7d32; margin: 25px 0 15px; padding: 15px 20px; background: #f1f8e9; border-radius: 8px; border: 2px solid #81c784; box-shadow: 0 3px 8px rgba(46, 125, 50, 0.2);',
@@ -162,7 +162,7 @@ class TemplateManager:
             # 数字序列主题 - 1、2、3连续标题
             'numbered_sequence': {
                 'name': '数字序列主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 30px; font-family: "Microsoft YaHei", "Arial", sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #2c3e50; line-height: 1.7; border-radius: 15px; box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3); counter-reset: section;',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Microsoft YaHei", "Arial", sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #2c3e50; line-height: 1.7; border-radius: 15px; box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3); counter-reset: section;',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: bold; color: #ffffff; margin: 30px 0 25px; padding: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 12px; text-align: center; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); position: relative;',
                     'h2': 'font-size: 24px; font-weight: bold; color: #2c3e50; margin: 25px 0 20px; padding: 20px 20px 20px 70px; background: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); position: relative; counter-increment: section; border-left: 5px solid #667eea;',
