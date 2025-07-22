@@ -24,6 +24,32 @@ class TemplateManager:
             dict: 包含多种样式模板的字典
         """
         return {
+            'base_theme': {
+                'name': '基本主题',
+                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "SF Pro Display", "Helvetica Neue", "Arial", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.6; border-radius: 10px;',
+                'styles': {
+                    'h1': 'font-size: 24px; font-weight: bold; color: #333; margin: 30px 0 20px; padding-bottom: 8px; border-bottom: 3px solid #007bff; text-align: center;',
+                    'h2': 'font-size: 20px; font-weight: bold; color: #333; margin: 25px 0 15px; padding-bottom: 5px; border-bottom: 2px solid #007bff;',
+                    'h3': 'font-size: 18px; font-weight: bold; color: #444; margin: 20px 0 10px; padding-left: 10px; border-left: 4px solid #007bff;',
+                    'h4': 'font-size: 16px; font-weight: bold; color: #555; margin: 15px 0 8px;',
+                    'p': 'font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 15px; text-align: justify; text-indent: 2em;',
+                    'strong': 'color: #d9534f; font-weight: bold;',
+                    'em': 'color: #5bc0de; font-style: italic;',
+                    'ul': 'padding-left: 20px; margin: 15px 0;',
+                    'ol': 'padding-left: 20px; margin: 15px 0;',
+                    'li': 'margin-bottom: 8px; line-height: 1.6;',
+                    'blockquote': 'border-left: 4px solid #ccc; padding-left: 15px; color: #777; font-style: italic; margin: 15px 0; background-color: #f9f9f9; padding: 10px 15px;',
+                    'code': 'background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; font-family: Consolas, Monaco, monospace; color: #c7254e;',
+                    'pre': 'background-color: #f8f8f8; padding: 15px; border-radius: 5px; border: 1px solid #e1e1e8; overflow-x: auto; margin: 15px 0;',
+                    'a': 'color: #007bff; text-decoration: none;',
+                    'img': 'max-width: 100%; height: auto; display: block; margin: 15px auto;',
+                    'table': 'border-collapse: collapse; width: 100%; margin: 15px 0;',
+                    'th': 'border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2; font-weight: bold; text-align: center;',
+                    'td': 'border: 1px solid #ddd; padding: 8px; text-align: left;',
+                    'hr': 'border: none; height: 1px; background-color: #ddd; margin: 20px 0;'
+                }
+            },
+
             # 科技蓝色主题 - 现代科技感
             'tech_blue': {
                 'name': '科技蓝色主题',
