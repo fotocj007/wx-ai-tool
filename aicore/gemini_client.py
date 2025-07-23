@@ -119,10 +119,10 @@ class GeminiClient:
                     final_title = catchy_title
                     self.logger.info(f"使用爆款标题: {final_title}")
 
-            self.logger.info(f"开始使用Gemini生成文章: {final_title}")
+            self.logger.info(f"开始使用Gemini生成文章: {title}")
 
             # 2. 生成文章内容
-            prompt = self._create_article_prompt(final_title)
+            prompt = self._create_article_prompt(title)
 
             # 调用Gemini API生成内容
             response = self.model.generate_content(prompt)

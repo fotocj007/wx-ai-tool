@@ -173,7 +173,8 @@ class QwenClient:
             prompt = f"""
 请根据以下标题创作一篇高质量的微信公众号文章：
 
-标题：{final_title}
+标题：{final_title}。
+文章内容必须围绕话题 "{title}" 展开。
 
 要求：
 1. 文章结构清晰，包含引言、正文和结尾
