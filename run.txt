@@ -19,3 +19,36 @@ python run.py
 
 退出：
 conda deactivate
+
+
+
+
+
+
+
+服务端ubuntu：
+
+查询：
+ sudo lsof -i :5000
+
+查看：
+ps aux | grep run.py
+
+
+
+cd 文件夹目录：
+创建虚拟环境（第一次）：
+python3 -m venv venv
+
+
+激活：
+source venv/bin/activate
+
+
+运行：
+nohup python3 run.py > output.log 2>&1 &
+
+
+退出环境：
+deactivate
+
