@@ -26,13 +26,13 @@ class TemplateManager:
         return {
             'base_theme': {
                 'name': '基本主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "SF Pro Display", "Helvetica Neue", "Arial", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.6; border-radius: 10px;',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'SF Pro Display\', \'Helvetica Neue\', \'Arial\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', sans-serif; line-height: 1.6; border-radius: 10px;',
                 'styles': {
                     'h1': 'font-size: 24px; font-weight: bold; color: #333; margin: 30px 0 20px; padding-bottom: 8px; border-bottom: 3px solid #007bff; text-align: center;',
                     'h2': 'font-size: 20px; font-weight: bold; color: #333; margin: 25px 0 15px; padding-bottom: 5px; border-bottom: 2px solid #007bff;',
                     'h3': 'font-size: 18px; font-weight: bold; color: #444; margin: 20px 0 10px; padding-left: 10px; border-left: 4px solid #007bff;',
                     'h4': 'font-size: 16px; font-weight: bold; color: #555; margin: 15px 0 8px;',
-                    'p': 'font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 15px; text-align: justify; text-indent: 2em;',
+                    'p': 'font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 15px; text-align: justify;',
                     'strong': 'color: #d9534f; font-weight: bold;',
                     'em': 'color: #5bc0de; font-style: italic;',
                     'ul': 'padding-left: 20px; margin: 15px 0;',
@@ -53,7 +53,7 @@ class TemplateManager:
             # 科技蓝色主题 - 现代科技感
             'tech_blue': {
                 'name': '科技蓝色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "SF Pro Display", "Helvetica Neue", "Arial", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; line-height: 1.6; border-radius: 10px;',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'SF Pro Display\', \'Helvetica Neue\', \'Arial\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', sans-serif; line-height: 1.6; border-radius: 10px;',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: bold; color: #00d4ff; margin: 30px 0 20px; padding: 15px; background: rgba(0, 212, 255, 0.1); border-radius: 8px; text-align: center; border: 2px solid #00d4ff;',
                     'h2': 'font-size: 22px; font-weight: bold; color: #00d4ff; margin: 25px 0 15px; padding-left: 15px; border-left: 4px solid #00d4ff; background: rgba(0, 212, 255, 0.05);',
@@ -66,7 +66,7 @@ class TemplateManager:
                     'ol': 'padding-left: 20px; margin: 15px 0;',
                     'li': 'margin-bottom: 8px; line-height: 1.6; color: #000000;',
                     'blockquote': 'border-left: 4px solid #00d4ff; padding: 15px; color: #b3ecff; font-style: italic; margin: 15px 0; background: rgba(0, 212, 255, 0.1); border-radius: 5px;',
-                    'code': 'background: rgba(0, 0, 0, 0.3); padding: 3px 6px; border-radius: 4px; font-family: "Consolas", "Monaco", monospace; color: #00ff88; border: 1px solid #00d4ff;',
+                    'code': 'background: rgba(0, 0, 0, 0.3); padding: 3px 6px; border-radius: 4px; font-family: \'Consolas\', \'Monaco\', monospace; color: #00ff88; border: 1px solid #00d4ff;',
                     'pre': 'background: rgba(0, 0, 0, 0.4); padding: 20px; border-radius: 8px; border: 1px solid #00d4ff; overflow-x: auto; margin: 15px 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);',
                     'a': 'color: #00ff88; text-decoration: none; border-bottom: 1px dotted #00ff88;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 15px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);',
@@ -80,7 +80,7 @@ class TemplateManager:
             # 温馨橙色主题 - 温暖亲和
             'warm_orange': {
                 'name': '温馨橙色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Optima", "Segoe Print", "Bradley Hand", "Brush Script MT", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", cursive; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #5d4037; line-height: 1.7; border-radius: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'Optima\', \'Segoe Print\', \'Bradley Hand\', \'Brush Script MT\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', cursive; color: #5d4037; line-height: 1.7; border-radius: 15px;',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #d84315; margin: 30px 0 20px; padding: 20px; background: #fff3e0; border-radius: 12px; text-align: center; border: 3px solid #ff8a65; box-shadow: 0 4px 8px rgba(216, 67, 21, 0.2);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #e65100; margin: 25px 0 15px; padding: 12px 20px; background: #fff8f5; border-radius: 8px; border-left: 5px solid #ff8a65;',
@@ -93,7 +93,7 @@ class TemplateManager:
                     'ol': 'padding-left: 25px; margin: 15px 0;',
                     'li': 'margin-bottom: 10px; line-height: 1.7; color: #5d4037;',
                     'blockquote': 'border-left: 5px solid #ff8a65; padding: 20px; color: #6d4c41; font-style: italic; margin: 20px 0; background: #fff8f5; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);',
-                    'code': 'background: #fff3e0; padding: 4px 8px; border-radius: 4px; font-family: "Consolas", "Monaco", monospace; color: #d84315; border: 1px solid #ffcc80;',
+                    'code': 'background: #fff3e0; padding: 4px 8px; border-radius: 4px; font-family: \'Consolas\', \'Monaco\', monospace; color: #d84315; border: 1px solid #ffcc80;',
                     'pre': 'background: #fff8f5; padding: 20px; border-radius: 10px; border: 2px solid #ffcc80; overflow-x: auto; margin: 20px 0; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);',
                     'a': 'color: #d84315; text-decoration: none; border-bottom: 2px solid #ff8a65; transition: all 0.3s ease;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);',
@@ -107,7 +107,7 @@ class TemplateManager:
             # 商务灰色主题 - 专业商务
             'business_gray': {
                 'name': '商务灰色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Times New Roman", "Georgia", "Palatino", "Book Antiqua", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #2c3e50; line-height: 1.6; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'Times New Roman\', \'Georgia\', \'Palatino\', \'Book Antiqua\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', serif; color: #2c3e50; line-height: 1.6; border-radius: 8px;',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: 700; color: #2c3e50; margin: 35px 0 25px; padding: 25px; background: #ffffff; border-radius: 6px; text-align: center; border-top: 4px solid #3498db; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);',
                     'h2': 'font-size: 24px; font-weight: 600; color: #34495e; margin: 30px 0 20px; padding: 15px 25px; background: #ecf0f1; border-radius: 4px; border-left: 4px solid #3498db;',
@@ -120,7 +120,7 @@ class TemplateManager:
                     'ol': 'padding-left: 30px; margin: 20px 0;',
                     'li': 'margin-bottom: 10px; line-height: 1.7; color: #2c3e50;',
                     'blockquote': 'border-left: 4px solid #3498db; padding: 20px 25px; color: #7f8c8d; font-style: italic; margin: 25px 0; background: #ffffff; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);',
-                    'code': 'background: #ecf0f1; padding: 4px 8px; border-radius: 3px; font-family: "Consolas", "Monaco", monospace; color: #e74c3c; border: 1px solid #bdc3c7;',
+                    'code': 'background: #ecf0f1; padding: 4px 8px; border-radius: 3px; font-family: \'Consolas\', \'Monaco\', monospace; color: #e74c3c; border: 1px solid #bdc3c7;',
                     'pre': 'background: #ffffff; padding: 25px; border-radius: 6px; border: 1px solid #bdc3c7; overflow-x: auto; margin: 25px 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);',
                     'a': 'color: #3498db; text-decoration: none; border-bottom: 1px solid #3498db; transition: all 0.3s ease;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 25px auto; border-radius: 6px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);',
@@ -134,7 +134,7 @@ class TemplateManager:
             # 娱乐粉色主题 - 活泼时尚
             'entertainment_pink': {
                 'name': '娱乐粉色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Comic Sans MS", "Chalkduster", "Bradley Hand", "Marker Felt", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", fantasy; background: linear-gradient(135deg, #ffeef8 0%, #f8d7da 100%); color: #6f2c91; line-height: 1.7; border-radius: 20px; box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'Comic Sans MS\', \'Chalkduster\', \'Bradley Hand\', \'Marker Felt\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', fantasy; color: #6f2c91; line-height: 1.7; border-radius: 8px;',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #e91e63; margin: 30px 0 20px; padding: 20px; background: linear-gradient(45deg, #ff69b4, #ff1493); color: white; border-radius: 15px; text-align: center; box-shadow: 0 6px 15px rgba(233, 30, 99, 0.3); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #c2185b; margin: 25px 0 15px; padding: 15px 20px; background: #fce4ec; border-radius: 12px; border: 2px solid #f48fb1; box-shadow: 0 3px 8px rgba(196, 24, 91, 0.2);',
@@ -147,7 +147,7 @@ class TemplateManager:
                     'ol': 'padding-left: 25px; margin: 15px 0;',
                     'li': 'margin-bottom: 10px; line-height: 1.7; color: #6f2c91; position: relative;',
                     'blockquote': 'border-left: 5px solid #f48fb1; padding: 20px; color: #8e24aa; font-style: italic; margin: 20px 0; background: linear-gradient(135deg, #fce4ec, #f3e5f5); border-radius: 12px; box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);',
-                    'code': 'background: linear-gradient(45deg, #fce4ec, #f3e5f5); padding: 4px 8px; border-radius: 6px; font-family: "Consolas", "Monaco", monospace; color: #e91e63; border: 2px solid #f48fb1;',
+                    'code': 'background: linear-gradient(45deg, #fce4ec, #f3e5f5); padding: 4px 8px; border-radius: 6px; font-family: \'Consolas\', \'Monaco\', monospace; color: #e91e63; border: 2px solid #f48fb1;',
                     'pre': 'background: linear-gradient(135deg, #fce4ec, #f3e5f5); padding: 20px; border-radius: 15px; border: 2px solid #f48fb1; overflow-x: auto; margin: 20px 0; box-shadow: 0 6px 15px rgba(244, 143, 177, 0.3);',
                     'a': 'color: #e91e63; text-decoration: none; border-bottom: 2px dotted #f48fb1; transition: all 0.3s ease;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 15px; box-shadow: 0 8px 20px rgba(233, 30, 99, 0.2); border: 3px solid #f48fb1;',
@@ -161,7 +161,7 @@ class TemplateManager:
             # 自然绿色主题 - 清新自然
             'nature_green': {
                 'name': '自然绿色主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Avenir", "Trebuchet MS", "Verdana", "Tahoma", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #2e7d32; line-height: 1.7; border-radius: 12px; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'Avenir\', \'Trebuchet MS\', \'Verdana\', \'Tahoma\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', sans-serif; color: #2e7d32; line-height: 1.7; border-radius: 8px; ',
                 'styles': {
                     'h1': 'font-size: 26px; font-weight: bold; color: #1b5e20; margin: 30px 0 20px; padding: 20px; background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; border-radius: 10px; text-align: center; box-shadow: 0 6px 15px rgba(27, 94, 32, 0.3); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);',
                     'h2': 'font-size: 22px; font-weight: bold; color: #2e7d32; margin: 25px 0 15px; padding: 15px 20px; background: #f1f8e9; border-radius: 8px; border: 2px solid #81c784; box-shadow: 0 3px 8px rgba(46, 125, 50, 0.2);',
@@ -174,7 +174,7 @@ class TemplateManager:
                     'ol': 'padding-left: 25px; margin: 15px 0;',
                     'li': 'margin-bottom: 10px; line-height: 1.7; color: #2e7d32;',
                     'blockquote': 'border-left: 5px solid #81c784; padding: 20px; color: #558b2f; font-style: italic; margin: 20px 0; background: linear-gradient(135deg, #f1f8e9, #e8f5e8); border-radius: 8px; box-shadow: 0 4px 12px rgba(129, 199, 132, 0.3);',
-                    'code': 'background: #f1f8e9; padding: 4px 8px; border-radius: 4px; font-family: "Consolas", "Monaco", monospace; color: #2e7d32; border: 1px solid #a5d6a7;',
+                    'code': 'background: #f1f8e9; padding: 4px 8px; border-radius: 4px; font-family: \'Consolas\', \'Monaco\', monospace; color: #2e7d32; border: 1px solid #a5d6a7;',
                     'pre': 'background: #f1f8e9; padding: 20px; border-radius: 10px; border: 2px solid #a5d6a7; overflow-x: auto; margin: 20px 0; box-shadow: 0 6px 15px rgba(165, 214, 167, 0.3);',
                     'a': 'color: #2e7d32; text-decoration: none; border-bottom: 2px solid #81c784; transition: all 0.3s ease;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 20px auto; border-radius: 10px; box-shadow: 0 8px 20px rgba(46, 125, 50, 0.2); border: 2px solid #a5d6a7;',
@@ -188,11 +188,11 @@ class TemplateManager:
             # 数字序列主题 - 1、2、3连续标题
             'numbered_sequence': {
                 'name': '数字序列主题',
-                'container': 'max-width: 100%; margin: 0 auto; padding: 5px; font-family: "Roboto", "Source Sans Pro", "Open Sans", "Lato", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #2c3e50; line-height: 1.7; border-radius: 15px; box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3); counter-reset: section;',
+                'container': 'max-width: 100%; margin: 0 auto; font-family: \'Roboto\', \'Source Sans Pro\', \'Open Sans\', \'Lato\', \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei\', sans-serif; color: #2c3e50; line-height: 1.7; border-radius: 6px; counter-reset: section;',
                 'styles': {
                     'h1': 'font-size: 28px; font-weight: bold; color: #ffffff; margin: 30px 0 25px; padding: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 12px; text-align: center; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); position: relative;',
                     'h2': 'font-size: 24px; font-weight: bold; color: #2c3e50; margin: 25px 0 20px; padding: 20px 20px 20px 70px; background: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); position: relative; counter-increment: section; border-left: 5px solid #667eea;',
-                    'h3': 'font-size: 20px; font-weight: bold; color: #34495e; margin: 20px 0 15px; padding: 15px 15px 15px 60px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; position: relative; counter-increment: subsection; border-left: 4px solid #f5576c;',
+                    'h3': 'font-size: 20px; font-weight: bold; color: #34495e; margin: 20px 0 15px; padding: 15px 15px 15px 10px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; position: relative; counter-increment: subsection; border-left: 4px solid #f5576c;',
                     'h4': 'font-size: 18px; font-weight: bold; color: #7f8c8d; margin: 15px 0 10px; padding: 10px 10px 10px 50px; background: rgba(255, 255, 255, 0.7); border-radius: 6px; position: relative; counter-increment: subsubsection; border-left: 3px solid #f093fb;',
                     'p': 'font-size: 16px; color: #2c3e50; line-height: 1.8; margin-bottom: 18px; text-align: justify; background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);',
                     'strong': 'color: #e74c3c; font-weight: bold; background: rgba(231, 76, 60, 0.2); padding: 3px 6px; border-radius: 4px;',
@@ -201,7 +201,7 @@ class TemplateManager:
                     'ol': 'padding-left: 30px; margin: 20px 0; background: rgba(255, 255, 255, 0.5); padding: 15px; border-radius: 8px;',
                     'li': 'margin-bottom: 12px; line-height: 1.7; color: #2c3e50; position: relative;',
                     'blockquote': 'border-left: 5px solid #667eea; padding: 25px; color: #34495e; font-style: italic; margin: 25px 0; background: rgba(255, 255, 255, 0.8); border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);',
-                    'code': 'background: rgba(255, 255, 255, 0.9); padding: 5px 10px; border-radius: 6px; font-family: "Consolas", "Monaco", monospace; color: #e74c3c; border: 1px solid #bdc3c7;',
+                    'code': 'background: rgba(255, 255, 255, 0.9); padding: 5px 10px; border-radius: 6px; font-family: \'Consolas\', \'Monaco\', monospace; color: #e74c3c; border: 1px solid #bdc3c7;',
                     'pre': 'background: rgba(255, 255, 255, 0.9); padding: 25px; border-radius: 12px; border: 2px solid #bdc3c7; overflow-x: auto; margin: 25px 0; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);',
                     'a': 'color: #667eea; text-decoration: none; border-bottom: 2px solid #667eea; transition: all 0.3s ease;',
                     'img': 'max-width: 100%; height: auto; display: block; margin: 25px auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); border: 3px solid #f5576c;',

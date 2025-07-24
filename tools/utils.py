@@ -66,51 +66,42 @@ def validate_markdown_content(content: str) -> bool:
     return True
 
 
-def decompress_html(compressed_content, use_compress=True):
+def decompress_html(html_content, use_compress=True):
     """
-    格式化 HTML 内容，处理压缩和未压缩 HTML，确保输出的内容适合网页渲染。
+    压缩 HTML 内容，移除多余的空白字符和换行符，解决微信公众号发布时的格式问题。
 
     参数：
-        compressed_content (str): 输入的 HTML 字符串
-        use_compress (bool): 是否作为压缩 HTML 处理（True）或直接返回（False）
+        html_content (str): 输入的 HTML 字符串
+        use_compress (bool): 是否压缩 HTML（True）或直接返回（False）
 
     返回：
-        str: 格式化后的 HTML 字符串
+        str: 压缩后的 HTML 字符串
     """
-    # 如果 use_compress 为 False 或内容已格式化（有换行和缩进），直接返回
-    if not use_compress or re.search(r"\n\s{2,}", compressed_content):
-        return compressed_content.strip()
-
+    if not html_content or not use_compress:
+        return html_content
+    
     try:
-        # 使用 lxml 解析器处理 HTML，支持不规范的 HTML
-        soup = BeautifulSoup(compressed_content, "lxml")
-
-        # 移除多余空白和注释，清理输出
-        for element in soup.find_all(text=True):
-            if element.strip() == "":
-                element.extract()  # 移除空文本节点
-            elif element.strip().startswith("<!--") and element.strip().endswith("-->"):
-                element.extract()  # 移除注释
-
-        # 判断是否为 HTML 片段（无 DOCTYPE 或 <html> 标签）
-        is_fragment = not (
-            compressed_content.strip().startswith("<!DOCTYPE")
-            or compressed_content.strip().startswith("<html")
-        )
-
-        if is_fragment:
-            # 对于片段，避免包裹 <html> 或 <body> 标签
-            formatted_lines = []
-            for child in soup.contents:
-                if hasattr(child, "prettify"):
-                    formatted_lines.append(child.prettify().strip())
-                else:
-                    formatted_lines.append(str(child).strip())
-            return "\n".join(line for line in formatted_lines if line)
-
-        # 对于完整 HTML 文档，返回格式化输出
-        return soup.prettify(formatter="minimal").strip()
-
-    except Exception as e:  # noqa 841
-        # 错误处理：解析失败时返回原始内容
-        return compressed_content.strip()
+        # 移除HTML注释
+        html_content = re.sub(r'<!--.*?-->', '', html_content, flags=re.DOTALL)
+        
+        # 压缩HTML：移除标签间的换行和多余空格
+        # 但保留标签内的文本内容的空格
+        compressed = re.sub(r'>\s+<', '><', html_content)
+        
+        # 移除行首行尾的空白字符
+        compressed = re.sub(r'^\s+|\s+$', '', compressed, flags=re.MULTILINE)
+        
+        # 将多个连续的空白字符（包括换行符）压缩为单个空格
+        # 但要小心处理，不要影响pre标签内的内容
+        compressed = re.sub(r'\s+', ' ', compressed)
+        
+        # 移除标签前后的空格（但保留标签内文本的空格）
+        compressed = re.sub(r'\s*<\s*', '<', compressed)
+        compressed = re.sub(r'\s*>\s*', '>', compressed)
+        
+        return compressed.strip()
+        
+    except Exception as e:
+        # 错误处理：压缩失败时返回原始内容
+        print(f"HTML压缩失败: {e}")
+        return html_content.strip()

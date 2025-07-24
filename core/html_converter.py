@@ -205,7 +205,11 @@ class HTMLConverter:
                     "margin: 20px 0; "
                     "box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); "
                     "position: relative; "
-                    "overflow: hidden;"
+                    "overflow-x: auto; "
+                    "max-width: 100%; "
+                    "-webkit-overflow-scrolling: touch; "
+                    "scrollbar-width: thin; "
+                    "scrollbar-color: #666 #333;"
                 )
                 
                 existing_style = pre_tag.get('style', '')
@@ -226,7 +230,10 @@ class HTMLConverter:
                         "font-size: 14px; "
                         "background: transparent; "
                         "padding: 0; "
-                        "border: none;"
+                        "border: none; "
+                        "white-space: pre; "
+                        "word-wrap: break-word; "
+                        "overflow-wrap: break-word;"
                     )
                     existing_code_style = code_tag.get('style', '')
                     if existing_code_style:
@@ -239,11 +246,12 @@ class HTMLConverter:
                 for line_div in code_lines:
                     line_style = (
                         "display: flex; "
-                        "align-items: center; "
+                        "align-items: flex-start; "
                         "margin: 2px 0; "
                         "padding: 3px 0; "
                         "border-radius: 4px; "
-                        "transition: background-color 0.2s ease;"
+                        "transition: background-color 0.2s ease; "
+                        "flex-wrap: wrap;"
                     )
                     line_div['style'] = line_style
                     
@@ -258,7 +266,8 @@ class HTMLConverter:
                             "min-width: 25px; "
                             "text-align: right; "
                             "user-select: none; "
-                            "opacity: 0.7;"
+                            "opacity: 0.7; "
+                            "flex-shrink: 0;"
                         )
                         line_number['style'] = number_style
                     
@@ -272,7 +281,11 @@ class HTMLConverter:
                                 "font-family: 'Consolas', 'Monaco', monospace; "
                                 "font-size: 14px; "
                                 "font-style: italic; "
-                                "opacity: 0.8;"
+                                "opacity: 0.8; "
+                                "word-wrap: break-word; "
+                                "overflow-wrap: break-word; "
+                                "white-space: pre-wrap; "
+                                "flex: 1;"
                             )
                         else:
                             # 普通代码样式 - 白色
@@ -280,7 +293,11 @@ class HTMLConverter:
                                 "color: #ffffff; "
                                 "font-family: 'Consolas', 'Monaco', monospace; "
                                 "font-size: 14px; "
-                                "font-weight: 500;"
+                                "font-weight: 500; "
+                                "word-wrap: break-word; "
+                                "overflow-wrap: break-word; "
+                                "white-space: pre-wrap; "
+                                "flex: 1;"
                             )
                         line_content['style'] = content_style
                         
@@ -354,7 +371,7 @@ class HTMLConverter:
             # 为h2标签添加数字序列的特殊样式
             for i, h2 in enumerate(soup.find_all('h2'), 1):
                 existing_style = h2.get('style', '')
-                number_style = "position: relative; padding-left: 70px;"
+                number_style = "position: relative; padding-left: 45px;"
                 if existing_style:
                     h2['style'] = f"{existing_style}; {number_style}"
                 else:
@@ -363,7 +380,7 @@ class HTMLConverter:
                 # 添加数字元素
                 number_span = soup.new_tag('span')
                 number_span.string = str(i)
-                number_span['style'] = "position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);"
+                number_span['style'] = "position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);"
                 h2.insert(0, number_span)
             
             html_content = str(soup)
