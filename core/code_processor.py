@@ -244,7 +244,7 @@ class CodeProcessor:
             
             # 添加代码图标和标题
             title_span = pre_tag.parent.new_tag('span')
-            title_span.string = "🖥️ code"
+            title_span.string = "🔴 code"
             header_div.append(title_span)
         
             # 将标题栏插入到代码块前面
