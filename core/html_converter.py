@@ -11,6 +11,7 @@ import random
 from typing import Optional
 from core.logger import get_logger
 from core.template_manager import TemplateManager
+from tools.utils import decompress_html
 
 
 class HTMLConverter:
@@ -75,8 +76,10 @@ class HTMLConverter:
             # 5. 构建完整的HTML文档
             complete_html = self._build_complete_html_document(str(soup), selected_template, title, template_name)
             
+            content = decompress_html(complete_html)
+
             self.logger.info(f"Markdown转HTML完成，使用模板: {selected_template['name']}")
-            return complete_html
+            return content
             
         except Exception as e:
             self.logger.error(f"Markdown转HTML失败: {e}")
@@ -124,80 +127,6 @@ class HTMLConverter:
                         
         except Exception as e:
             self.logger.error(f"处理代码块时出错: {e}")
-    
-    def _is_bash_content(self, content: str) -> bool:
-        """
-        判断代码内容是否为bash脚本
-        
-        Args:
-            content: 代码内容
-            
-        Returns:
-            bool: 是否为bash内容
-        """
-        bash_indicators = [
-            '#!/bin/bash', '#!/bin/sh', 
-            'mkdir ', 'cd ', 'ls ', 'pwd', 'chmod ', 'chown ',
-            'git clone', 'npm install', 'npm run', 'npm link',
-            'echo ', 'cat ', 'grep ', 'find ', 'which ',
-            'export ', 'source ', './'
-        ]
-        
-        content_lower = content.lower().strip()
-        return any(indicator in content_lower for indicator in bash_indicators)
-    
-    def _format_bash_code_content(self, code_tag):
-        """
-        格式化bash代码内容，添加特殊样式
-        
-        Args:
-            code_tag: 代码标签
-        """
-        try:
-            content = code_tag.get_text()
-            lines = content.split('\n')
-            
-            # 保存原始内容作为备份
-            original_content = content
-            
-            # 清空原内容
-            code_tag.clear()
-            
-            # 如果没有内容，直接返回
-            if not content.strip():
-                code_tag.string = original_content
-                return
-            
-            for i, line in enumerate(lines):
-                # 创建行容器
-                line_div = code_tag.parent.new_tag('div')
-                line_div['class'] = 'bash-line'
-                
-                # 添加行号
-                line_number = code_tag.parent.new_tag('span')
-                line_number['class'] = 'line-number'
-                line_number.string = f"{i+1:2d}"
-                line_div.append(line_number)
-                
-                # 添加代码内容
-                line_content = code_tag.parent.new_tag('span')
-                line_content['class'] = 'line-content'
-                
-                # 处理注释
-                if line.strip().startswith('#'):
-                    line_content['class'] = 'line-content comment'
-                
-                # 保持原始行内容，包括空行
-                line_content.string = line if line else ' '
-                line_div.append(line_content)
-                
-                code_tag.append(line_div)
-                    
-        except Exception as e:
-            self.logger.error(f"格式化bash代码内容时出错: {e}")
-            # 如果格式化失败，恢复原内容
-            code_tag.clear()
-            code_tag.string = content
     
     def _is_code_related_tag(self, tag):
         """
