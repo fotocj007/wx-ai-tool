@@ -91,17 +91,27 @@ class ConfigManager:
         Returns:
             str: AI模型 (gemini 或 qwen)
         """
-        return self.get('API', 'ai_model', 'gemini')
+        return self.get('API', 'ai_model', 'qwen')
     
-    def get_qwen_config(self) -> dict:
+    def get_qwen_config(self, model_type: str = 'qwen') -> dict:
         """
         获取Qwen配置
+        
+        Args:
+            model_type: 模型类型 ('qwen' 或 'kimi')
         
         Returns:
             dict: Qwen配置信息
         """
+        if model_type == 'kimi':
+            model_key = 'qwen_model_kimi'
+            default_model = 'Moonshot-Kimi-K2-Instruct'
+        else:
+            model_key = 'qwen_model'
+            default_model = 'qwen-plus'
+            
         return {
-            'model': self.get('API', 'qwen_model', 'qwen-plus'),
+            'model': self.get('API', model_key, default_model),
             'api_key': self.get('API', 'qwen_api_key', ''),
             'base_url': self.get('API', 'qwen_base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
         }

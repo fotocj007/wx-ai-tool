@@ -19,13 +19,17 @@ class QwenClient:
     Qwen AI客户端类
     """
 
-    def __init__(self):
+    def __init__(self, model_type: str = 'qwen'):
         """
         初始化Qwen客户端
+        
+        Args:
+            model_type: 模型类型 ('qwen' 或 'kimi')
         """
         self.config = get_config()
         self.logger = get_logger()
-        self.qwen_config = self.config.get_qwen_config()
+        self.model_type = model_type
+        self.qwen_config = self.config.get_qwen_config(model_type)
 
         # 验证配置
         if not self.qwen_config['api_key']:
@@ -185,7 +189,8 @@ class QwenClient:
 6. 包含适当的小标题和段落分隔
 7. 结尾要有启发性或总结性
 8. 避免过于商业化的内容
-9. 语言要尽量使用一般的口语，一定要去除AI生成的痕迹。
+
+特别注意：文章内容的文字一定要使用正常的一般性口语，不要用特别的专业性疏于。而且一定要去除AI味的痕迹。
 
 请直接输出文章内容，不要包含任何解释或说明文字。
 """
@@ -256,16 +261,26 @@ class QwenClient:
 
 # 全局实例
 _qwen_client = None
+_kimi_client = None
 
 
-def get_qwen_client() -> QwenClient:
+def get_qwen_client(model_type: str = 'qwen') -> QwenClient:
     """
     获取全局Qwen客户端实例
+    
+    Args:
+        model_type: 模型类型 ('qwen' 或 'kimi')
     
     Returns:
         QwenClient: Qwen客户端实例
     """
-    global _qwen_client
-    if _qwen_client is None:
-        _qwen_client = QwenClient()
-    return _qwen_client
+    global _qwen_client, _kimi_client
+    
+    if model_type == 'kimi':
+        if _kimi_client is None:
+            _kimi_client = QwenClient('kimi')
+        return _kimi_client
+    else:
+        if _qwen_client is None:
+            _qwen_client = QwenClient('qwen')
+        return _qwen_client

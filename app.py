@@ -52,8 +52,11 @@ class VXToolApp:
         # 根据配置选择AI客户端
         ai_model = self.config.get_ai_model()
         if ai_model == 'qwen':
-            self.ai_client = get_qwen_client()
+            self.ai_client = get_qwen_client('qwen')
             self.logger.info("使用Qwen AI客户端")
+        elif ai_model == 'kimi':
+            self.ai_client = get_qwen_client('kimi')
+            self.logger.info("使用Kimi AI客户端")
         else:
             self.ai_client = get_gemini_client()
             self.logger.info("使用Gemini AI客户端")
@@ -107,8 +110,11 @@ class VXToolApp:
             if ai_model == 'gemini':
                 ai_client = get_gemini_client()
                 self.logger.info(f"使用Gemini AI客户端生成文章: {title}")
+            elif ai_model == 'kimi':
+                ai_client = get_qwen_client('kimi')
+                self.logger.info(f"使用Kimi AI客户端生成文章: {title}")
             else:
-                ai_client = get_qwen_client()
+                ai_client = get_qwen_client('qwen')
                 self.logger.info(f"使用Qwen AI客户端生成文章: {title}")
             
             # 更新任务状态
