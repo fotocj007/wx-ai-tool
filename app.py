@@ -267,7 +267,7 @@ class VXToolApp:
 
         return task_id
 
-    def run(self, host='0.0.0.0', port=5000, debug=False):
+    def run(self, host='0.0.0.0', port=5001, debug=False):
         """
         运行应用
         
