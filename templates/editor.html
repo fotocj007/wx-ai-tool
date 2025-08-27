@@ -161,7 +161,14 @@
             margin-bottom: 10px;
         }
 
-        .refresh-btn {
+        .file-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn, .delete-btn {
             background: #667eea;
             color: white;
             border: none;
@@ -169,10 +176,45 @@
             padding: 6px 12px;
             font-size: 12px;
             cursor: pointer;
+            transition: background 0.3s;
         }
 
         .refresh-btn:hover {
             background: #5a6fd8;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .delete-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .select-controls {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .select-controls button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .select-controls button:hover {
+            background: #5a6268;
         }
 
         .file-list {
@@ -188,6 +230,9 @@
             transition: all 0.3s ease;
             margin-bottom: 5px;
             border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .file-item:hover {
@@ -199,9 +244,32 @@
             color: white;
         }
 
+        .file-item.checked {
+            background: #e8f4fd;
+            border-color: #007bff;
+        }
+
+        .file-item.checked.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .file-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .file-name {
             font-weight: 500;
             margin-bottom: 4px;
+            word-break: break-word;
         }
 
         .file-date {
@@ -348,8 +416,15 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h3>📁 文章列表</h3>
-            <button class="refresh-btn" onclick="editor.loadFileList()">刷新</button>
-            <br><br>
+            <div class="file-controls">
+                <button class="refresh-btn" onclick="editor.loadFileList()">刷新</button>
+                <button class="delete-btn" id="delete-btn" onclick="editor.deleteSelectedFiles()" disabled>删除选中</button>
+            </div>
+            <div class="select-controls">
+                <button onclick="editor.selectAll()">全选</button>
+                <button onclick="editor.selectNone()">全不选</button>
+                <span id="selected-count">已选择: 0</span>
+            </div>
             <a href="https://quaily.com/tools/markdown-to-wx/" target="_blank">跳转到 Markdown 转微信图文工具</a>
             <br><br>
             <a href="https://matrix.tencent.com/ai-detect/ai_gen" target="_blank">跳转到 AI检查工具</a>
@@ -401,6 +476,7 @@
         constructor() {
             this.currentFile = null;
             this.easyMDE = null;
+            this.selectedFiles = new Set();
             this.init();
         }
 
@@ -448,11 +524,19 @@
 
                     if (files.length > 0) {
                         container.innerHTML = files.map(file => `
-                                <div class="file-item" data-filename="${file.name}" onclick="editor.loadFile('${file.name}')">
-                                    <div class="file-name">${file.name}</div>
-                                    <div class="file-date">${file.modified}</div>
+                                <div class="file-item" data-filename="${file.name}">
+                                    <input type="checkbox" class="file-checkbox" data-filename="${file.name}" 
+                                           onchange="editor.onFileCheckboxChange('${file.name}', this.checked)">
+                                    <div class="file-info" onclick="editor.loadFile('${file.name}')">
+                                        <div class="file-name">${file.name}</div>
+                                        <div class="file-date">${file.modified}</div>
+                                    </div>
                                 </div>
                             `).join('');
+                        
+                        // 清空选中状态
+                        this.selectedFiles.clear();
+                        this.updateSelectedCount();
                     } else {
                         container.innerHTML = `
                                 <div class="empty-state">
@@ -502,7 +586,10 @@
                     document.querySelectorAll('.file-item').forEach(item => {
                         item.classList.remove('selected');
                     });
-                    document.querySelector(`[data-filename="${filename}"]`).classList.add('selected');
+                    const selectedItem = document.querySelector(`[data-filename="${filename}"]`);
+                    if (selectedItem) {
+                        selectedItem.classList.add('selected');
+                    }
 
                     this.showAlert('success', `文件 ${filename} 加载成功`);
                 } else {
@@ -680,6 +767,102 @@
             }
         }
 
+        onFileCheckboxChange(filename, checked) {
+            if (checked) {
+                this.selectedFiles.add(filename);
+                document.querySelector(`[data-filename="${filename}"]`).classList.add('checked');
+            } else {
+                this.selectedFiles.delete(filename);
+                document.querySelector(`[data-filename="${filename}"]`).classList.remove('checked');
+            }
+            this.updateSelectedCount();
+        }
+
+        selectAll() {
+            document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+                checkbox.checked = true;
+                const filename = checkbox.dataset.filename;
+                this.selectedFiles.add(filename);
+                document.querySelector(`[data-filename="${filename}"]`).classList.add('checked');
+            });
+            this.updateSelectedCount();
+        }
+
+        selectNone() {
+            document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+                const filename = checkbox.dataset.filename;
+                this.selectedFiles.delete(filename);
+                document.querySelector(`[data-filename="${filename}"]`).classList.remove('checked');
+            });
+            this.updateSelectedCount();
+        }
+
+        updateSelectedCount() {
+            const count = this.selectedFiles.size;
+            document.getElementById('selected-count').textContent = `已选择: ${count}`;
+            document.getElementById('delete-btn').disabled = count === 0;
+        }
+
+        async deleteSelectedFiles() {
+            if (this.selectedFiles.size === 0) {
+                this.showAlert('error', '请先选择要删除的文件');
+                return;
+            }
+
+            if (!confirm(`确定要删除选中的 ${this.selectedFiles.size} 个文件吗？此操作不可撤销！`)) {
+                return;
+            }
+
+            const btn = document.getElementById('delete-btn');
+            const originalText = btn.textContent;
+
+            btn.disabled = true;
+            btn.textContent = '删除中...';
+
+            try {
+                const filenames = Array.from(this.selectedFiles);
+                const response = await fetch('/api/articles/batch-delete', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filenames })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.showAlert('success', `成功删除 ${result.data.deleted_count} 个文件`);
+                    
+                    // 如果当前编辑的文件被删除，清空编辑器
+                    if (this.currentFile && this.selectedFiles.has(this.currentFile)) {
+                        this.currentFile = null;
+                        this.easyMDE.value('');
+                        document.getElementById('current-file').textContent = '请选择一个文件开始编辑';
+                        document.getElementById('empty-state').style.display = 'block';
+                        
+                        // 禁用按钮
+                        document.getElementById('save-btn').disabled = true;
+                        document.getElementById('convert-btn').disabled = true;
+                        document.getElementById('preview-btn').disabled = true;
+                        document.getElementById('publish-btn').disabled = true;
+                        document.getElementById('template-select').disabled = true;
+                    }
+                    
+                    // 重新加载文件列表
+                    await this.loadFileList();
+                } else {
+                    this.showAlert('error', result.error);
+                }
+            } catch (error) {
+                this.showAlert('error', '删除文件失败');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
         showAlert(type, message) {
             const container = document.getElementById('alert-container');
             const alertDiv = document.createElement('div');
@@ -688,7 +871,7 @@
 
             container.appendChild(alertDiv);
 
-            // 3秒后自动移除
+            // 10秒后自动移除
             setTimeout(() => {
                 if (alertDiv.parentNode) {
                     alertDiv.parentNode.removeChild(alertDiv);

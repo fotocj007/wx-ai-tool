@@ -41,6 +41,11 @@ def register_article_routes(app, vx_app):
         """更新文章内容"""
         return _update_article_content(vx_app, filename)
 
+    @app.route('/api/articles/batch-delete', methods=['DELETE'])
+    def batch_delete_articles():
+        """批量删除文章"""
+        return _batch_delete_articles(vx_app)
+
     @app.route('/api/convert-html/<filename>', methods=['POST'])
     def convert_html(filename):
         """将Markdown转换为HTML"""
@@ -341,6 +346,78 @@ def _get_templates(vx_app) -> Dict[str, Any]:
         return {
             'success': False,
             'error': f'获取模板列表失败: {str(e)}'
+        }
+
+
+def _batch_delete_articles(vx_app) -> Dict[str, Any]:
+    """
+    批量删除文章
+    
+    Args:
+        vx_app: VXToolApp实例
+        
+    Returns:
+        dict: API响应
+    """
+    try:
+        data = request.get_json()
+        if not data or 'filenames' not in data:
+            return {
+                'success': False,
+                'error': '缺少必要参数: filenames'
+            }
+
+        filenames = data['filenames']
+        if not isinstance(filenames, list) or len(filenames) == 0:
+            return {
+                'success': False,
+                'error': '文件名列表不能为空'
+            }
+
+        articles_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'articles')
+        html_dir = os.path.join(articles_dir, 'html')
+        
+        deleted_count = 0
+        failed_files = []
+        
+        for filename in filenames:
+            try:
+                # 删除markdown文件
+                md_file_path = os.path.join(articles_dir, filename)
+                if os.path.exists(md_file_path):
+                    os.remove(md_file_path)
+                    vx_app.logger.info(f"已删除markdown文件: {filename}")
+                    deleted_count += 1
+                
+                # 删除对应的HTML文件（如果存在）
+                html_filename = filename.replace('.md', '.html')
+                html_file_path = os.path.join(html_dir, html_filename)
+                if os.path.exists(html_file_path):
+                    os.remove(html_file_path)
+                    vx_app.logger.info(f"已删除HTML文件: {html_filename}")
+                    
+            except Exception as e:
+                vx_app.logger.error(f"删除文件 {filename} 失败: {str(e)}")
+                failed_files.append(filename)
+
+        result_message = f"成功删除 {deleted_count} 个文件"
+        if failed_files:
+            result_message += f"，{len(failed_files)} 个文件删除失败"
+
+        return {
+            'success': True,
+            'data': {
+                'deleted_count': deleted_count,
+                'failed_files': failed_files,
+                'message': result_message
+            }
+        }
+
+    except Exception as e:
+        vx_app.logger.error(f"批量删除文章失败: {str(e)}")
+        return {
+            'success': False,
+            'error': f'批量删除文章失败: {str(e)}'
         }
 
 
